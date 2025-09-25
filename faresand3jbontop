@@ -1,1271 +1,919 @@
+-- Professional Timer GUI Script for Roblox
+-- By Fares and 3jb 🇪🇬
+-- Made with love from Egypt
+
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local SoundService = game:GetService("SoundService")
 
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "ProfessionalTimerGUI"
-ScreenGui.Enabled = true
-ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = PlayerGui
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
 
-local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 400, 0, 200)
-MainFrame.Position = UDim2.new(0.5, -200, 0.5, -100)
-MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-MainFrame.BorderSizePixel = 0
-MainFrame.Draggable = true
-MainFrame.Parent = ScreenGui
-
-local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 10)
-UICorner.Parent = MainFrame
-
-local TitleBar = Instance.new("Frame")
-TitleBar.Name = "TitleBar"
-TitleBar.Size = UDim2.new(1, 0, 0, 30)
-TitleBar.Position = UDim2.new(0, 0, 0, 0)
-TitleBar.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-TitleBar.BorderSizePixel = 0
-TitleBar.Parent = MainFrame
-
-local TitleLabel = Instance.new("TextLabel")
-TitleLabel.Name = "TitleLabel"
-TitleLabel.Size = UDim2.new(1, -60, 1, 0)
-TitleLabel.Position = UDim2.new(0, 0, 0, 0)
-TitleLabel.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-TitleLabel.BackgroundTransparency = 1
-TitleLabel.Text = "Professional Timer"
-TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.TextSize = 18
-TitleLabel.TextXAlignment = Enum.TextXAlignment.Center
-TitleLabel.TextYAlignment = Enum.TextYAlignment.Center
-TitleLabel.Parent = TitleBar
-
-local CreditsLabel = Instance.new("TextLabel")
-CreditsLabel.Name = "CreditsLabel"
-CreditsLabel.Size = UDim2.new(0.5, 0, 1, 0)
-CreditsLabel.Position = UDim2.new(0.5, 0, 0, 0)
-CreditsLabel.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-CreditsLabel.BackgroundTransparency = 1
-CreditsLabel.Text = "FARES AND 3JB"
-CreditsLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
-CreditsLabel.Font = Enum.Font.SourceSansPro
-CreditsLabel.TextSize = 12
-CreditsLabel.TextXAlignment = Enum.TextXAlignment.Right
-CreditsLabel.TextYAlignment = Enum.TextYAlignment.Center
-CreditsLabel.Parent = TitleBar
-
-local CloseButton = Instance.new("TextButton")
-CloseButton.Name = "CloseButton"
-CloseButton.Size = UDim2.new(0, 30, 1, 0)
-CloseButton.Position = UDim2.new(1, -30, 0, 0)
-CloseButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-CloseButton.Text = "X"
-CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseButton.Font = Enum.Font.GothamBold
-CloseButton.TextSize = 18
-CloseButton.Parent = TitleBar
-
-local MinimizeButton = Instance.new("TextButton")
-MinimizeButton.Name = "MinimizeButton"
-MinimizeButton.Size = UDim2.new(0, 30, 1, 0)
-MinimizeButton.Position = UDim2.new(1, -60, 0, 0)
-MinimizeButton.BackgroundColor3 = Color3.fromRGB(200, 150, 0)
-MinimizeButton.Text = "_"
-MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-MinimizeButton.Font = Enum.Font.GothamBold
-MinimizeButton.TextSize = 18
-MinimizeButton.Parent = TitleBar
-
-local TimeDisplayFrame = Instance.new("Frame")
-TimeDisplayFrame.Name = "TimeDisplayFrame"
-TimeDisplayFrame.Size = UDim2.new(1, -40, 0, 80)
-TimeDisplayFrame.Position = UDim2.new(0.5, -180, 0, 50)
-TimeDisplayFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-TimeDisplayFrame.BorderSizePixel = 0
-TimeDisplayFrame.Parent = MainFrame
-
-local TimeDisplayUICorner = Instance.new("UICorner")
-TimeDisplayUICorner.CornerRadius = UDim.new(0, 5)
-TimeDisplayUICorner.Parent = TimeDisplayFrame
-
-local HoursLabel = Instance.new("TextLabel")
-HoursLabel.Name = "HoursLabel"
-HoursLabel.Size = UDim2.new(0.3, 0, 1, 0)
-HoursLabel.Position = UDim2.new(0, 0, 0, 0)
-HoursLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-HoursLabel.BackgroundTransparency = 1
-HoursLabel.Text = "00"
-HoursLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-HoursLabel.Font = Enum.Font.SourceSansProBold
-HoursLabel.TextSize = 40
-HoursLabel.TextXAlignment = Enum.TextXAlignment.Center
-HoursLabel.TextYAlignment = Enum.TextYAlignment.Center
-HoursLabel.Parent = TimeDisplayFrame
-
-local MinutesLabel = Instance.new("TextLabel")
-MinutesLabel.Name = "MinutesLabel"
-MinutesLabel.Size = UDim2.new(0.3, 0, 1, 0)
-MinutesLabel.Position = UDim2.new(0.35, 0, 0, 0)
-MinutesLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-MinutesLabel.BackgroundTransparency = 1
-MinutesLabel.Text = "00"
-MinutesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-MinutesLabel.Font = Enum.Font.SourceSansProBold
-MinutesLabel.TextSize = 40
-MinutesLabel.TextXAlignment = Enum.TextXAlignment.Center
-MinutesLabel.TextYAlignment = Enum.TextYAlignment.Center
-MinutesLabel.Parent = TimeDisplayFrame
-
-local SecondsLabel = Instance.new("TextLabel")
-SecondsLabel.Name = "SecondsLabel"
-SecondsLabel.Size = UDim2.new(0.3, 0, 1, 0)
-SecondsLabel.Position = UDim2.new(0.7, 0, 0, 0)
-SecondsLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-SecondsLabel.BackgroundTransparency = 1
-SecondsLabel.Text = "00"
-SecondsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-SecondsLabel.Font = Enum.Font.SourceSansProBold
-SecondsLabel.TextSize = 40
-SecondsLabel.TextXAlignment = Enum.TextXAlignment.Center
-SecondsLabel.TextYAlignment = Enum.TextYAlignment.Center
-SecondsLabel.Parent = TimeDisplayFrame
-
-local Separator1 = Instance.new("TextLabel")
-Separator1.Name = "Separator1"
-Separator1.Size = UDim2.new(0.05, 0, 1, 0)
-Separator1.Position = UDim2.new(0.3, 0, 0, 0)
-Separator1.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-Separator1.BackgroundTransparency = 1
-Separator1.Text = ":"
-Separator1.TextColor3 = Color3.fromRGB(255, 255, 255)
-Separator1.Font = Enum.Font.SourceSansProBold
-Separator1.TextSize = 40
-Separator1.TextXAlignment = Enum.TextXAlignment.Center
-Separator1.TextYAlignment = Enum.TextYAlignment.Center
-Separator1.Parent = TimeDisplayFrame
-
-local Separator2 = Instance.new("TextLabel")
-Separator2.Name = "Separator2"
-Separator2.Size = UDim2.new(0.05, 0, 1, 0)
-Separator2.Position = UDim2.new(0.65, 0, 0, 0)
-Separator2.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-Separator2.BackgroundTransparency = 1
-Separator2.Text = ":"
-Separator2.TextColor3 = Color3.fromRGB(255, 255, 255)
-Separator2.Font = Enum.Font.SourceSansProBold
-Separator2.TextSize = 40
-Separator2.TextXAlignment = Enum.TextXAlignment.Center
-Separator2.TextYAlignment = Enum.TextYAlignment.Center
-Separator2.Parent = TimeDisplayFrame
-
-local ControlButtonsFrame = Instance.new("Frame")
-ControlButtonsFrame.Name = "ControlButtonsFrame"
-ControlButtonsFrame.Size = UDim2.new(1, -40, 0, 50)
-ControlButtonsFrame.Position = UDim2.new(0.5, -180, 1, -60)
-ControlButtonsFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-ControlButtonsFrame.BorderSizePixel = 0
-ControlButtonsFrame.Parent = MainFrame
-
-local ControlButtonsUILayout = Instance.new("UIListLayout")
-ControlButtonsUILayout.FillDirection = Enum.FillDirection.Horizontal
-ControlButtonsUILayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-ControlButtonsUILayout.VerticalAlignment = Enum.VerticalAlignment.Center
-ControlButtonsUILayout.Padding = UDim.new(0, 10)
-ControlButtonsUILayout.Parent = ControlButtonsFrame
-
-local StartButton = Instance.new("TextButton")
-StartButton.Name = "StartButton"
-StartButton.Size = UDim2.new(0.3, 0, 0.8, 0)
-StartButton.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
-StartButton.Text = "Start"
-StartButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-StartButton.Font = Enum.Font.GothamBold
-StartButton.TextSize = 18
-StartButton.Parent = ControlButtonsFrame
-
-local StopButton = Instance.new("TextButton")
-StopButton.Name = "StopButton"
-StopButton.Size = UDim2.new(0.3, 0, 0.8, 0)
-StopButton.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
-StopButton.Text = "Stop"
-StopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-StopButton.Font = Enum.Font.GothamBold
-StopButton.TextSize = 18
-StopButton.Parent = ControlButtonsFrame
-
-local ResetButton = Instance.new("TextButton")
-ResetButton.Name = "ResetButton"
-ResetButton.Size = UDim2.new(0.3, 0, 0.8, 0)
-ResetButton.BackgroundColor3 = Color3.fromRGB(0, 0, 150)
-ResetButton.Text = "Reset"
-ResetButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ResetButton.Font = Enum.Font.GothamBold
-ResetButton.TextSize = 18
-ResetButton.Parent = ControlButtonsFrame
-
-local timerRunning = false
+-- Main Variables
+local timerActive = false
+local timerPaused = false
 local totalSeconds = 0
+local currentSeconds = 0
 local connection
+local lastUpdate = 0
+local isMinimized = false
 
-local function formatTime(seconds)
+-- Sound Effects
+local sounds = {
+    click = Instance.new("Sound"),
+    complete = Instance.new("Sound"),
+    tick = Instance.new("Sound"),
+    warning = Instance.new("Sound")
+}
+
+-- Setup Sounds
+sounds.click.SoundId = "rbxassetid://131961136"
+sounds.complete.SoundId = "rbxassetid://131961136" 
+sounds.tick.SoundId = "rbxassetid://131961136"
+sounds.warning.SoundId = "rbxassetid://131961136"
+
+for _, sound in pairs(sounds) do
+    sound.Volume = 0.3
+    sound.Parent = SoundService
+end
+
+-- Create Main GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "ProfessionalTimer"
+screenGui.Parent = playerGui
+screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true
+
+-- Main Frame
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Parent = screenGui
+mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+mainFrame.BorderSizePixel = 0
+mainFrame.Position = UDim2.new(0.5, -225, 0.5, -200)
+mainFrame.Size = UDim2.new(0, 450, 0, 400)
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.BackgroundTransparency = 1 -- Start invisible for fade in
+
+-- Enhanced Drop Shadow System
+local shadowFrames = {}
+for i = 1, 5 do
+    local shadow = Instance.new("Frame")
+    shadow.Name = "Shadow" .. i
+    shadow.Parent = mainFrame
+    shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    shadow.BackgroundTransparency = 0.3 + (i * 0.15)
+    shadow.BorderSizePixel = 0
+    shadow.Position = UDim2.new(0, i * 2, 0, i * 2)
+    shadow.Size = UDim2.new(1, 0, 1, 0)
+    shadow.ZIndex = -i
+    
+    local shadowCorner = Instance.new("UICorner")
+    shadowCorner.CornerRadius = UDim.new(0, 20)
+    shadowCorner.Parent = shadow
+    
+    shadowFrames[i] = shadow
+end
+
+-- Main Frame Corner
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 20)
+mainCorner.Parent = mainFrame
+
+-- Enhanced Gradient Background
+local gradient = Instance.new("UIGradient")
+gradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(45, 45, 65)),
+    ColorSequenceKeypoint.new(0.3, Color3.fromRGB(30, 30, 45)),
+    ColorSequenceKeypoint.new(0.7, Color3.fromRGB(25, 25, 40)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 25))
+}
+gradient.Rotation = 135
+gradient.Parent = mainFrame
+
+-- Animated Border Glow
+local glowFrame = Instance.new("Frame")
+glowFrame.Name = "GlowFrame"
+glowFrame.Parent = mainFrame
+glowFrame.BackgroundTransparency = 1
+glowFrame.BorderSizePixel = 0
+glowFrame.Position = UDim2.new(0, -2, 0, -2)
+glowFrame.Size = UDim2.new(1, 4, 1, 4)
+glowFrame.ZIndex = -1
+
+local glowGradient = Instance.new("UIGradient")
+glowGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 149, 237)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(138, 43, 226)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(65, 105, 225))
+}
+glowGradient.Parent = glowFrame
+
+local glowCorner = Instance.new("UICorner")
+glowCorner.CornerRadius = UDim.new(0, 22)
+glowCorner.Parent = glowFrame
+
+-- Title Bar with Glass Effect
+local titleBar = Instance.new("Frame")
+titleBar.Name = "TitleBar"
+titleBar.Parent = mainFrame
+titleBar.BackgroundColor3 = Color3.fromRGB(65, 105, 225)
+titleBar.BackgroundTransparency = 0.1
+titleBar.BorderSizePixel = 0
+titleBar.Size = UDim2.new(1, 0, 0, 60)
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 20)
+titleCorner.Parent = titleBar
+
+-- Glass Blur Effect
+local titleBlur = Instance.new("Frame")
+titleBlur.Parent = titleBar
+titleBlur.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+titleBlur.BackgroundTransparency = 0.9
+titleBlur.BorderSizePixel = 0
+titleBlur.Size = UDim2.new(1, 0, 1, 0)
+
+local titleBlurCorner = Instance.new("UICorner")
+titleBlurCorner.CornerRadius = UDim.new(0, 20)
+titleBlurCorner.Parent = titleBlur
+
+local titleGradient = Instance.new("UIGradient")
+titleGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(138, 43, 226)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(100, 149, 237)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(65, 105, 225))
+}
+titleGradient.Rotation = 45
+titleGradient.Parent = titleBar
+
+-- Title Text with Glow Effect
+local titleText = Instance.new("TextLabel")
+titleText.Name = "TitleText"
+titleText.Parent = titleBar
+titleText.BackgroundTransparency = 1
+titleText.Position = UDim2.new(0, 20, 0, 0)
+titleText.Size = UDim2.new(1, -120, 1, 0)
+titleText.Font = Enum.Font.GothamBold
+titleText.Text = "⏰ Professional Timer"
+titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleText.TextScaled = true
+titleText.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+titleText.TextStrokeTransparency = 0.5
+
+-- Credits Text
+local creditsText = Instance.new("TextLabel")
+creditsText.Name = "CreditsText"
+creditsText.Parent = titleBar
+creditsText.BackgroundTransparency = 1
+creditsText.Position = UDim2.new(0, 20, 0, 35)
+creditsText.Size = UDim2.new(1, -120, 0, 20)
+creditsText.Font = Enum.Font.Gotham
+creditsText.Text = "By Fares and 3jb"
+creditsText.TextColor3 = Color3.fromRGB(200, 200, 255)
+creditsText.TextScaled = true
+creditsText.TextStrokeTransparency = 0.8
+
+-- Minimize Button
+local minimizeButton = Instance.new("TextButton")
+minimizeButton.Name = "MinimizeButton"
+minimizeButton.Parent = titleBar
+minimizeButton.BackgroundColor3 = Color3.fromRGB(255, 193, 7)
+minimizeButton.BorderSizePixel = 0
+minimizeButton.Position = UDim2.new(1, -80, 0.5, -15)
+minimizeButton.Size = UDim2.new(0, 30, 0, 30)
+minimizeButton.Font = Enum.Font.GothamBold
+minimizeButton.Text = "−"
+minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+minimizeButton.TextScaled = true
+
+local minimizeCorner = Instance.new("UICorner")
+minimizeCorner.CornerRadius = UDim.new(1, 0)
+minimizeCorner.Parent = minimizeButton
+
+-- Close Button
+local closeButton = Instance.new("TextButton")
+closeButton.Name = "CloseButton"
+closeButton.Parent = titleBar
+closeButton.BackgroundColor3 = Color3.fromRGB(220, 53, 69)
+closeButton.BorderSizePixel = 0
+closeButton.Position = UDim2.new(1, -40, 0.5, -15)
+closeButton.Size = UDim2.new(0, 30, 0, 30)
+closeButton.Font = Enum.Font.GothamBold
+closeButton.Text = "✕"
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.TextScaled = true
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(1, 0)
+closeCorner.Parent = closeButton
+
+-- Timer Display Frame with Neon Effect
+local displayFrame = Instance.new("Frame")
+displayFrame.Name = "DisplayFrame"
+displayFrame.Parent = mainFrame
+displayFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 20)
+displayFrame.BorderSizePixel = 0
+displayFrame.Position = UDim2.new(0, 25, 0, 80)
+displayFrame.Size = UDim2.new(1, -50, 0, 100)
+
+local displayCorner = Instance.new("UICorner")
+displayCorner.CornerRadius = UDim.new(0, 15)
+displayCorner.Parent = displayFrame
+
+-- Display Glow Effect
+local displayGlow = Instance.new("Frame")
+displayGlow.Parent = displayFrame
+displayGlow.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
+displayGlow.BackgroundTransparency = 0.8
+displayGlow.BorderSizePixel = 0
+displayGlow.Position = UDim2.new(0, -2, 0, -2)
+displayGlow.Size = UDim2.new(1, 4, 1, 4)
+displayGlow.ZIndex = -1
+
+local displayGlowCorner = Instance.new("UICorner")
+displayGlowCorner.CornerRadius = UDim.new(0, 17)
+displayGlowCorner.Parent = displayGlow
+
+-- Timer Display Text with Animation
+local timerDisplay = Instance.new("TextLabel")
+timerDisplay.Name = "TimerDisplay"
+timerDisplay.Parent = displayFrame
+timerDisplay.BackgroundTransparency = 1
+timerDisplay.Size = UDim2.new(1, 0, 1, 0)
+timerDisplay.Font = Enum.Font.Code
+timerDisplay.Text = "00:00:00"
+timerDisplay.TextColor3 = Color3.fromRGB(100, 255, 100)
+timerDisplay.TextScaled = true
+timerDisplay.TextStrokeColor3 = Color3.fromRGB(0, 100, 0)
+timerDisplay.TextStrokeTransparency = 0.3
+
+-- Input Frame
+local inputFrame = Instance.new("Frame")
+inputFrame.Name = "InputFrame"
+inputFrame.Parent = mainFrame
+inputFrame.BackgroundTransparency = 1
+inputFrame.Position = UDim2.new(0, 25, 0, 200)
+inputFrame.Size = UDim2.new(1, -50, 0, 80)
+
+-- Input Boxes with Enhanced Style
+local inputs = {}
+local inputLabels = {"Hours", "Minutes", "Seconds"}
+local inputDefaults = {"0", "5", "0"}
+
+for i = 1, 3 do
+    local inputContainer = Instance.new("Frame")
+    inputContainer.Name = inputLabels[i] .. "Container"
+    inputContainer.Parent = inputFrame
+    inputContainer.BackgroundTransparency = 1
+    inputContainer.Position = UDim2.new((i-1) * 0.33 + 0.02, 0, 0, 0)
+    inputContainer.Size = UDim2.new(0.28, 0, 1, 0)
+    
+    local label = Instance.new("TextLabel")
+    label.Name = "Label"
+    label.Parent = inputContainer
+    label.BackgroundTransparency = 1
+    label.Size = UDim2.new(1, 0, 0.3, 0)
+    label.Font = Enum.Font.GothamBold
+    label.Text = inputLabels[i]
+    label.TextColor3 = Color3.fromRGB(200, 200, 255)
+    label.TextScaled = true
+    label.TextStrokeTransparency = 0.8
+    
+    local inputBg = Instance.new("Frame")
+    inputBg.Name = "InputBg"
+    inputBg.Parent = inputContainer
+    inputBg.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+    inputBg.BorderSizePixel = 0
+    inputBg.Position = UDim2.new(0, 0, 0.35, 0)
+    inputBg.Size = UDim2.new(1, 0, 0.4, 0)
+    
+    local inputBgCorner = Instance.new("UICorner")
+    inputBgCorner.CornerRadius = UDim.new(0, 8)
+    inputBgCorner.Parent = inputBg
+    
+    local textBox = Instance.new("TextBox")
+    textBox.Name = "Input"
+    textBox.Parent = inputBg
+    textBox.BackgroundTransparency = 1
+    textBox.Size = UDim2.new(1, -40, 1, 0)
+    textBox.Position = UDim2.new(0, 20, 0, 0)
+    textBox.Font = Enum.Font.Gotham
+    textBox.PlaceholderText = inputDefaults[i]
+    textBox.Text = inputDefaults[i]
+    textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textBox.TextScaled = true
+    
+    -- Plus Button
+    local plusButton = Instance.new("TextButton")
+    plusButton.Name = "PlusButton"
+    plusButton.Parent = inputContainer
+    plusButton.BackgroundColor3 = Color3.fromRGB(40, 167, 69)
+    plusButton.BorderSizePixel = 0
+    plusButton.Position = UDim2.new(0.7, 0, 0.8, 0)
+    plusButton.Size = UDim2.new(0.25, 0, 0.15, 0)
+    plusButton.Font = Enum.Font.GothamBold
+    plusButton.Text = "+"
+    plusButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    plusButton.TextScaled = true
+    
+    local plusCorner = Instance.new("UICorner")
+    plusCorner.CornerRadius = UDim.new(1, 0)
+    plusCorner.Parent = plusButton
+    
+    -- Minus Button
+    local minusButton = Instance.new("TextButton")
+    minusButton.Name = "MinusButton"
+    minusButton.Parent = inputContainer
+    minusButton.BackgroundColor3 = Color3.fromRGB(220, 53, 69)
+    minusButton.BorderSizePixel = 0
+    minusButton.Position = UDim2.new(0.05, 0, 0.8, 0)
+    minusButton.Size = UDim2.new(0.25, 0, 0.15, 0)
+    minusButton.Font = Enum.Font.GothamBold
+    minusButton.Text = "−"
+    minusButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    minusButton.TextScaled = true
+    
+    local minusCorner = Instance.new("UICorner")
+    minusCorner.CornerRadius = UDim.new(1, 0)
+    minusCorner.Parent = minusButton
+    
+    inputs[inputLabels[i]:lower()] = {textBox = textBox, plus = plusButton, minus = minusButton}
+end
+
+-- Control Buttons Frame
+local controlFrame = Instance.new("Frame")
+controlFrame.Name = "ControlFrame"
+controlFrame.Parent = mainFrame
+controlFrame.BackgroundTransparency = 1
+controlFrame.Position = UDim2.new(0, 25, 0, 300)
+controlFrame.Size = UDim2.new(1, -50, 0, 50)
+
+-- Enhanced Control Buttons
+local buttons = {}
+local buttonData = {
+    {name = "Start", color = Color3.fromRGB(40, 167, 69), text = "▶ Start", glow = Color3.fromRGB(100, 255, 100)},
+    {name = "Pause", color = Color3.fromRGB(255, 193, 7), text = "⏸ Pause", glow = Color3.fromRGB(255, 255, 100)},
+    {name = "Stop", color = Color3.fromRGB(220, 53, 69), text = "⏹ Stop", glow = Color3.fromRGB(255, 100, 100)},
+    {name = "Reset", color = Color3.fromRGB(108, 117, 125), text = "🔄 Reset", glow = Color3.fromRGB(200, 200, 200)}
+}
+
+for i, data in ipairs(buttonData) do
+    local buttonContainer = Instance.new("Frame")
+    buttonContainer.Parent = controlFrame
+    buttonContainer.BackgroundTransparency = 1
+    buttonContainer.Position = UDim2.new((i-1) * 0.25 + 0.01, 0, 0, 0)
+    buttonContainer.Size = UDim2.new(0.23, 0, 1, 0)
+    
+    local buttonGlow = Instance.new("Frame")
+    buttonGlow.Parent = buttonContainer
+    buttonGlow.BackgroundColor3 = data.glow
+    buttonGlow.BackgroundTransparency = 0.7
+    buttonGlow.BorderSizePixel = 0
+    buttonGlow.Position = UDim2.new(0, -2, 0, -2)
+    buttonGlow.Size = UDim2.new(1, 4, 1, 4)
+    buttonGlow.ZIndex = -1
+    
+    local buttonGlowCorner = Instance.new("UICorner")
+    buttonGlowCorner.CornerRadius = UDim.new(0, 12)
+    buttonGlowCorner.Parent = buttonGlow
+    
+    local button = Instance.new("TextButton")
+    button.Name = data.name .. "Button"
+    button.Parent = buttonContainer
+    button.BackgroundColor3 = data.color
+    button.BorderSizePixel = 0
+    button.Size = UDim2.new(1, 0, 1, 0)
+    button.Font = Enum.Font.GothamBold
+    button.Text = data.text
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.TextScaled = true
+    button.TextStrokeTransparency = 0.8
+    
+    local buttonCorner = Instance.new("UICorner")
+    buttonCorner.CornerRadius = UDim.new(0, 10)
+    buttonCorner.Parent = button
+    
+    local buttonGradient = Instance.new("UIGradient")
+    buttonGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, data.color),
+        ColorSequenceKeypoint.new(1, Color3.new(data.color.R * 0.8, data.color.G * 0.8, data.color.B * 0.8))
+    }
+    buttonGradient.Rotation = 90
+    buttonGradient.Parent = button
+    
+    buttons[data.name:lower()] = button
+end
+
+-- Status Bar with Glass Effect
+local statusBar = Instance.new("Frame")
+statusBar.Name = "StatusBar"
+statusBar.Parent = mainFrame
+statusBar.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
+statusBar.BackgroundTransparency = 0.3
+statusBar.BorderSizePixel = 0
+statusBar.Position = UDim2.new(0, 0, 1, -35)
+statusBar.Size = UDim2.new(1, 0, 0, 35)
+
+local statusCorner = Instance.new("UICorner")
+statusCorner.CornerRadius = UDim.new(0, 20)
+statusCorner.Parent = statusBar
+
+local statusText = Instance.new("TextLabel")
+statusText.Name = "StatusText"
+statusText.Parent = statusBar
+statusText.BackgroundTransparency = 1
+statusText.Position = UDim2.new(0, 15, 0, 0)
+statusText.Size = UDim2.new(1, -30, 1, 0)
+statusText.Font = Enum.Font.Gotham
+statusText.Text = "Ready to start timing... ⏰"
+statusText.TextColor3 = Color3.fromRGB(150, 200, 255)
+statusText.TextScaled = true
+statusText.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Progress Bar Frame
+local progressFrame = Instance.new("Frame")
+progressFrame.Name = "ProgressFrame"
+progressFrame.Parent = mainFrame
+progressFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+progressFrame.BorderSizePixel = 0
+progressFrame.Position = UDim2.new(0, 25, 0, 370)
+progressFrame.Size = UDim2.new(1, -50, 0, 10)
+
+local progressCorner = Instance.new("UICorner")
+progressCorner.CornerRadius = UDim.new(0, 5)
+progressCorner.Parent = progressFrame
+
+local progressBar = Instance.new("Frame")
+progressBar.Name = "ProgressBar"
+progressBar.Parent = progressFrame
+progressBar.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
+progressBar.BorderSizePixel = 0
+progressBar.Size = UDim2.new(0, 0, 1, 0)
+
+local progressBarCorner = Instance.new("UICorner")
+progressBarCorner.CornerRadius = UDim.new(0, 5)
+progressBarCorner.Parent = progressBar
+
+local progressGradient = Instance.new("UIGradient")
+progressGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 255, 100)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(50, 200, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 100, 255))
+}
+progressGradient.Parent = progressBar
+
+-- Animation Functions
+local function createTween(object, properties, duration, style, direction)
+    style = style or Enum.EasingStyle.Quad
+    direction = direction or Enum.EasingDirection.Out
+    local tweenInfo = TweenInfo.new(duration, style, direction)
+    return TweenService:Create(object, tweenInfo, properties)
+end
+
+local function playSound(soundName)
+    if sounds[soundName] then
+        sounds[soundName]:Play()
+    end
+end
+
+local function updateDisplay(seconds)
     local hours = math.floor(seconds / 3600)
     local minutes = math.floor((seconds % 3600) / 60)
     local secs = seconds % 60
-    return string.format("%02i", hours), string.format("%02i", minutes), string.format("%02i", secs)
+    
+    timerDisplay.Text = string.format("%02d:%02d:%02d", hours, minutes, secs)
+    
+    -- Color animation based on time remaining
+    if seconds <= 10 and seconds > 0 and timerActive then
+        timerDisplay.TextColor3 = Color3.fromRGB(255, 100, 100)
+        displayGlow.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+        if seconds <= 3 then
+            local pulse = createTween(timerDisplay, {TextTransparency = 0.3}, 0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+            pulse.Completed:Connect(function()
+                createTween(timerDisplay, {TextTransparency = 0}, 0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut):Play()
+            end)
+            pulse:Play()
+        end
+    elseif timerPaused then
+        timerDisplay.TextColor3 = Color3.fromRGB(255, 193, 7)
+        displayGlow.BackgroundColor3 = Color3.fromRGB(255, 193, 7)
+    else
+        timerDisplay.TextColor3 = Color3.fromRGB(100, 255, 100)
+        displayGlow.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
+    end
+    
+    -- Update progress bar
+    if totalSeconds > 0 then
+        local progress = math.max(0, math.min(1, (totalSeconds - seconds) / totalSeconds))
+        createTween(progressBar, {Size = UDim2.new(progress, 0, 1, 0)}, 0.3):Play()
+    end
 end
 
-local function updateTimerDisplay()
-    local h, m, s = formatTime(totalSeconds)
-    HoursLabel.Text = h
-    MinutesLabel.Text = m
-    SecondsLabel.Text = s
+local function updateStatus(message)
+    statusText.Text = message
+    local colorTween = createTween(statusText, {TextColor3 = Color3.fromRGB(100, 255, 100)}, 0.3)
+    colorTween.Completed:Connect(function()
+        wait(1)
+        createTween(statusText, {TextColor3 = Color3.fromRGB(150, 200, 255)}, 0.5):Play()
+    end)
+    colorTween:Play()
+end
+
+local function getTimeFromInputs()
+    local hours = tonumber(inputs.hours.textBox.Text) or 0
+    local minutes = tonumber(inputs.minutes.textBox.Text) or 0
+    local seconds = tonumber(inputs.seconds.textBox.Text) or 0
+    return hours * 3600 + minutes * 60 + seconds
 end
 
 local function startTimer()
-    if not timerRunning then
-        timerRunning = true
-        connection = game:GetService("RunService").Heartbeat:Connect(function(deltaTime)
-            totalSeconds = totalSeconds + deltaTime
-            updateTimerDisplay()
-        end)
+    if not timerActive then
+        totalSeconds = getTimeFromInputs()
+        currentSeconds = totalSeconds
+        if totalSeconds <= 0 then
+            updateStatus("Please set a valid time!")
+            return
+        end
+    end
+    
+    timerActive = true
+    timerPaused = false
+    playSound("click")
+    updateStatus("Timer started! ⏰")
+    
+    buttons.start.Text = "▶ Resume"
+    
+    connection = RunService.Heartbeat:Connect(function()
+        if timerActive and not timerPaused then
+            local now = tick()
+            if now - lastUpdate >= 1 then
+                currentSeconds = currentSeconds - 1
+                lastUpdate = now
+                
+                updateDisplay(currentSeconds)
+                
+                if currentSeconds <= 0 then
+                    stopTimer()
+                    playSound("complete")
+                    updateStatus("Time's up! ⏰")
+                    
+                    -- Victory animation
+                    for i = 1, 5 do
+                        spawn(function()
+                            wait(i * 0.1)
+                            local flash = createTween(mainFrame, {BackgroundTransparency = 0.3}, 0.2)
+                            flash.Completed:Connect(function()
+                                createTween(mainFrame, {BackgroundTransparency = 0}, 0.2):Play()
+                            end)
+                            flash:Play()
+                        end)
+                    end
+                elseif currentSeconds <= 10 then
+                    playSound("warning")
+                end
+            end
+        end
+    end)
+end
+
+local function pauseTimer()
+    if timerActive then
+        timerPaused = not timerPaused
+        playSound("click")
+        
+        if timerPaused then
+            buttons.pause.Text = "▶ Resume"
+            updateStatus("Timer paused ⏸")
+        else
+            buttons.pause.Text = "⏸ Pause"
+            updateStatus("Timer resumed ⏰")
+        end
+        
+        updateDisplay(currentSeconds)
     end
 end
 
 local function stopTimer()
-    if timerRunning then
-        timerRunning = false
-        if connection then
-            connection:Disconnect()
-            connection = nil
-        end
+    timerActive = false
+    timerPaused = false
+    if connection then
+        connection:Disconnect()
+        connection = nil
     end
+    
+    playSound("click")
+    buttons.start.Text = "▶ Start"
+    buttons.pause.Text = "⏸ Pause"
+    updateStatus("Timer stopped ⏹")
+    updateDisplay(currentSeconds)
 end
 
 local function resetTimer()
     stopTimer()
+    currentSeconds = 0
     totalSeconds = 0
-    updateTimerDisplay()
+    playSound("click")
+    updateStatus("Timer reset 🔄")
+    updateDisplay(0)
+    progressBar.Size = UDim2.new(0, 0, 1, 0)
 end
 
-StartButton.MouseButton1Click:Connect(startTimer)
-StopButton.MouseButton1Click:Connect(stopTimer)
-ResetButton.MouseButton1Click:Connect(resetTimer)
-
-CloseButton.MouseButton1Click:Connect(function()
-    ScreenGui.Enabled = false
-    stopTimer()
-end)
-
-MinimizeButton.MouseButton1Click:Connect(function()
-    MainFrame.Visible = not MainFrame.Visible
-end)
-
-local isDragging = false
-local dragStartPos
-local initialMousePos
-
-TitleBar.MouseButton1Down:Connect(function(x, y)
-    isDragging = true
-    dragStartPos = MainFrame.Position
-    initialMousePos = Vector2.new(x, y)
-end)
-
-TitleBar.MouseButton1Up:Connect(function()
-    isDragging = false
-end)
-
-TitleBar.MouseLeave:Connect(function()
-    isDragging = false
-end)
-
-game:GetService("UserInputService").InputChanged:Connect(function(input)
-    if isDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - initialMousePos
-        MainFrame.Position = UDim2.new(dragStartPos.X.Scale, dragStartPos.X.Offset + delta.X, dragStartPos.Y.Scale, dragStartPos.Y.Offset + delta.Y)
-    end
-end)
-
-updateTimerDisplay()
-
-
-
-
-
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
-
-local function createTween(instance, properties, duration, easingStyle, easingDirection)
-    local tweenInfo = TweenInfo.new(duration, easingStyle, easingDirection)
-    return TweenService:Create(instance, tweenInfo, properties)
-end
-
-local function fadeIn(instance, duration)
-    instance.Visible = true
-    local tween = createTween(instance, {BackgroundTransparency = 0, TextTransparency = 0}, duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-    tween:Play()
-    return tween
-end
-
-local function fadeOut(instance, duration)
-    local tween = createTween(instance, {BackgroundTransparency = 1, TextTransparency = 1}, duration, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-    tween:Play()
-    tween.Completed:Connect(function()
-        instance.Visible = false
-    end)
-    return tween
-end
-
-local function applyButtonHoverEffects(button)
-    local originalColor = button.BackgroundColor3
-    local hoverColor = originalColor:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
-
-    button.MouseEnter:Connect(function()
-        createTween(button, {BackgroundColor3 = hoverColor}, 0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out):Play()
-    end)
-
-    button.MouseLeave:Connect(function()
-        createTween(button, {BackgroundColor3 = originalColor}, 0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out):Play()
-    end)
-end
-
-applyButtonHoverEffects(StartButton)
-applyButtonHoverEffects(StopButton)
-applyButtonHoverEffects(ResetButton)
-applyButtonHoverEffects(CloseButton)
-applyButtonHoverEffects(MinimizeButton)
-
--- Initial fade in for the main frame
-MainFrame.BackgroundTransparency = 1
-TitleBar.BackgroundTransparency = 1
-TitleLabel.TextTransparency = 1
-CreditsLabel.TextTransparency = 1
-CloseButton.BackgroundTransparency = 1
-MinimizeButton.BackgroundTransparency = 1
-TimeDisplayFrame.BackgroundTransparency = 1
-HoursLabel.TextTransparency = 1
-MinutesLabel.TextTransparency = 1
-SecondsLabel.TextTransparency = 1
-Separator1.TextTransparency = 1
-Separator2.TextTransparency = 1
-ControlButtonsFrame.BackgroundTransparency = 1
-StartButton.BackgroundTransparency = 1
-StopButton.BackgroundTransparency = 1
-ResetButton.BackgroundTransparency = 1
-
-MainFrame.Visible = false
-
-local function showGUI()
-    MainFrame.Visible = true
-    fadeIn(MainFrame, 0.3)
-    fadeIn(TitleBar, 0.3)
-    fadeIn(TitleLabel, 0.3)
-    fadeIn(CreditsLabel, 0.3)
-    fadeIn(CloseButton, 0.3)
-    fadeIn(MinimizeButton, 0.3)
-    fadeIn(TimeDisplayFrame, 0.3)
-    fadeIn(HoursLabel, 0.3)
-    fadeIn(MinutesLabel, 0.3)
-    fadeIn(SecondsLabel, 0.3)
-    fadeIn(Separator1, 0.3)
-    fadeIn(Separator2, 0.3)
-    fadeIn(ControlButtonsFrame, 0.3)
-    fadeIn(StartButton, 0.3)
-    fadeIn(StopButton, 0.3)
-    fadeIn(ResetButton, 0.3)
-end
-
-local function hideGUI()
-    fadeOut(MainFrame, 0.3)
-    fadeOut(TitleBar, 0.3)
-    fadeOut(TitleLabel, 0.3)
-    fadeOut(CreditsLabel, 0.3)
-    fadeOut(CloseButton, 0.3)
-    fadeOut(MinimizeButton, 0.3)
-    fadeOut(TimeDisplayFrame, 0.3)
-    fadeOut(HoursLabel, 0.3)
-    fadeOut(MinutesLabel, 0.3)
-    fadeOut(SecondsLabel, 0.3)
-    fadeOut(Separator1, 0.3)
-    fadeOut(Separator2, 0.3)
-    fadeOut(ControlButtonsFrame, 0.3)
-    fadeOut(StartButton, 0.3)
-    fadeOut(StopButton, 0.3)
-    fadeOut(ResetButton, 0.3)
-end
-
-CloseButton.MouseButton1Click:Connect(function()
-    hideGUI()
-    stopTimer()
-end)
-
-MinimizeButton.MouseButton1Click:Connect(function()
-    if MainFrame.Visible then
-        hideGUI()
-    else
-        showGUI()
-    end
-end)
-
-showGUI()
-
-
-
-
-
-local function createUIElement(elementType, properties, parent)
-    local element = Instance.new(elementType)
-    for prop, value in pairs(properties) do
-        element[prop] = value
-    end
-    element.Parent = parent
-    return element
-end
-
-local function applyDefaultStyles(element)
-    if element:IsA("Frame") or element:IsA("TextLabel") or element:IsA("TextButton") then
-        element.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-        element.BorderSizePixel = 0
-        local corner = Instance.new("UICorner")
-        corner.CornerRadius = UDim.new(0, 5)
-        corner.Parent = element
-    end
-    if element:IsA("TextLabel") or element:IsA("TextButton") then
-        element.TextColor3 = Color3.fromRGB(255, 255, 255)
-        element.Font = Enum.Font.SourceSansPro
-        element.TextSize = 14
-        element.TextXAlignment = Enum.TextXAlignment.Center
-        element.TextYAlignment = Enum.TextYAlignment.Center
-    end
-end
-
--- Re-create GUI elements using the new functions for better organization and potential for more lines
--- This section will replace the previous direct instance creation for better modularity and extensibility
-
-ScreenGui:ClearAllChildren()
-
-MainFrame = createUIElement("Frame", {
-    Name = "MainFrame",
-    Size = UDim2.new(0.3, 0, 0.4, 0),
-    Position = UDim2.new(0.5, 0, 0.5, 0),
-    AnchorPoint = Vector2.new(0.5, 0.5),
-    BackgroundColor3 = Color3.fromRGB(30, 30, 30),
-    Draggable = true,
-    Visible = false
-}, ScreenGui)
-
-UICorner = createUIElement("UICorner", {CornerRadius = UDim.new(0, 10)}, MainFrame)
-
-TitleBar = createUIElement("Frame", {
-    Name = "TitleBar",
-    Size = UDim2.new(1, 0, 0, 35),
-    Position = UDim2.new(0, 0, 0, 0),
-    BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-}, MainFrame)
-
-TitleLabel = createUIElement("TextLabel", {
-    Name = "TitleLabel",
-    Size = UDim2.new(1, -100, 1, 0),
-    Position = UDim2.new(0, 0, 0, 0),
-    BackgroundTransparency = 1,
-    Text = "Professional Timer",
-    TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.GothamBold,
-    TextSize = 20
-}, TitleBar)
-
-CreditsLabel = createUIElement("TextLabel", {
-    Name = "CreditsLabel",
-    Size = UDim2.new(0.5, 0, 1, 0),
-    Position = UDim2.new(0.5, 0, 0, 0),
-    BackgroundTransparency = 1,
-    Text = "FARES AND 3JB",
-    TextColor3 = Color3.fromRGB(180, 180, 180),
-    Font = Enum.Font.SourceSansPro,
-    TextSize = 12,
-    TextXAlignment = Enum.TextXAlignment.Right
-}, TitleBar)
-
-CloseButton = createUIElement("TextButton", {
-    Name = "CloseButton",
-    Size = UDim2.new(0, 35, 1, 0),
-    Position = UDim2.new(1, -35, 0, 0),
-    BackgroundColor3 = Color3.fromRGB(200, 50, 50),
-    Text = "X",
-    TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.GothamBold,
-    TextSize = 20
-}, TitleBar)
-
-MinimizeButton = createUIElement("TextButton", {
-    Name = "MinimizeButton",
-    Size = UDim2.new(0, 35, 1, 0),
-    Position = UDim2.new(1, -70, 0, 0),
-    BackgroundColor3 = Color3.fromRGB(200, 150, 50),
-    Text = "_",
-    TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.GothamBold,
-    TextSize = 20
-}, TitleBar)
-
-TimeDisplayFrame = createUIElement("Frame", {
-    Name = "TimeDisplayFrame",
-    Size = UDim2.new(0.9, 0, 0.3, 0),
-    Position = UDim2.new(0.5, 0, 0.3, 0),
-    AnchorPoint = Vector2.new(0.5, 0.5),
-    BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-}, MainFrame)
-
-TimeDisplayUICorner = createUIElement("UICorner", {CornerRadius = UDim.new(0, 5)}, TimeDisplayFrame)
-
-local TimeLayout = createUIElement("UIListLayout", {
-    FillDirection = Enum.FillDirection.Horizontal,
-    HorizontalAlignment = Enum.HorizontalAlignment.Center,
-    VerticalAlignment = Enum.VerticalAlignment.Center,
-    Padding = UDim.new(0, 5)
-}, TimeDisplayFrame)
-
-HoursLabel = createUIElement("TextLabel", {
-    Name = "HoursLabel",
-    Size = UDim2.new(0.25, 0, 0.8, 0),
-    BackgroundTransparency = 1,
-    Text = "00",
-    TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.SourceSansProBold,
-    TextSize = 40
-}, TimeDisplayFrame)
-
-Separator1 = createUIElement("TextLabel", {
-    Name = "Separator1",
-    Size = UDim2.new(0.05, 0, 0.8, 0),
-    BackgroundTransparency = 1,
-    Text = ":",
-    TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.SourceSansProBold,
-    TextSize = 40
-}, TimeDisplayFrame)
-
-MinutesLabel = createUIElement("TextLabel", {
-    Name = "MinutesLabel",
-    Size = UDim2.new(0.25, 0, 0.8, 0),
-    BackgroundTransparency = 1,
-    Text = "00",
-    TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.SourceSansProBold,
-    TextSize = 40
-}, TimeDisplayFrame)
-
-Separator2 = createUIElement("TextLabel", {
-    Name = "Separator2",
-    Size = UDim2.new(0.05, 0, 0.8, 0),
-    BackgroundTransparency = 1,
-    Text = ":",
-    TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.SourceSansProBold,
-    TextSize = 40
-}, TimeDisplayFrame)
-
-SecondsLabel = createUIElement("TextLabel", {
-    Name = "SecondsLabel",
-    Size = UDim2.new(0.25, 0, 0.8, 0),
-    BackgroundTransparency = 1,
-    Text = "00",
-    TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.SourceSansProBold,
-    TextSize = 40
-}, TimeDisplayFrame)
-
-ControlButtonsFrame = createUIElement("Frame", {
-    Name = "ControlButtonsFrame",
-    Size = UDim2.new(0.9, 0, 0.2, 0),
-    Position = UDim2.new(0.5, 0, 0.7, 0),
-    AnchorPoint = Vector2.new(0.5, 0.5),
-    BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-}, MainFrame)
-
-ControlButtonsUILayout = createUIElement("UIListLayout", {
-    FillDirection = Enum.FillDirection.Horizontal,
-    HorizontalAlignment = Enum.HorizontalAlignment.Center,
-    VerticalAlignment = Enum.VerticalAlignment.Center,
-    Padding = UDim.new(0, 10)
-}, ControlButtonsFrame)
-
-StartButton = createUIElement("TextButton", {
-    Name = "StartButton",
-    Size = UDim2.new(0.3, 0, 0.8, 0),
-    BackgroundColor3 = Color3.fromRGB(0, 170, 0),
-    Text = "Start",
-    TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.GothamBold,
-    TextSize = 18
-}, ControlButtonsFrame)
-
-StopButton = createUIElement("TextButton", {
-    Name = "StopButton",
-    Size = UDim2.new(0.3, 0, 0.8, 0),
-    BackgroundColor3 = Color3.fromRGB(170, 0, 0),
-    Text = "Stop",
-    TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.GothamBold,
-    TextSize = 18
-}, ControlButtonsFrame)
-
-ResetButton = createUIElement("TextButton", {
-    Name = "ResetButton",
-    Size = UDim2.new(0.3, 0, 0.8, 0),
-    BackgroundColor3 = Color3.fromRGB(0, 0, 170),
-    Text = "Reset",
-    TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.GothamBold,
-    TextSize = 18
-}, ControlButtonsFrame)
-
--- Apply hover effects to newly created buttons
-applyButtonHoverEffects(StartButton)
-applyButtonHoverEffects(StopButton)
-applyButtonHoverEffects(ResetButton)
-applyButtonHoverEffects(CloseButton)
-applyButtonHoverEffects(MinimizeButton)
-
--- Ensure initial state for fade-in
-MainFrame.BackgroundTransparency = 1
-TitleBar.BackgroundTransparency = 1
-TitleLabel.TextTransparency = 1
-CreditsLabel.TextTransparency = 1
-CloseButton.BackgroundTransparency = 1
-MinimizeButton.BackgroundTransparency = 1
-TimeDisplayFrame.BackgroundTransparency = 1
-HoursLabel.TextTransparency = 1
-MinutesLabel.TextTransparency = 1
-SecondsLabel.TextTransparency = 1
-Separator1.TextTransparency = 1
-Separator2.TextTransparency = 1
-ControlButtonsFrame.BackgroundTransparency = 1
-StartButton.BackgroundTransparency = 1
-StopButton.BackgroundTransparency = 1
-ResetButton.BackgroundTransparency = 1
-
-MainFrame.Visible = false
-
-showGUI()
-
--- Settings Frame (New Feature)
-local SettingsFrame = createUIElement("Frame", {
-    Name = "SettingsFrame",
-    Size = UDim2.new(0.25, 0, 0.3, 0),
-    Position = UDim2.new(0.5, 0, 0.5, 0),
-    AnchorPoint = Vector2.new(0.5, 0.5),
-    BackgroundColor3 = Color3.fromRGB(35, 35, 35),
-    Visible = false
-}, ScreenGui)
-
-local SettingsUICorner = createUIElement("UICorner", {CornerRadius = UDim.new(0, 10)}, SettingsFrame)
-
-local SettingsTitleBar = createUIElement("Frame", {
-    Name = "SettingsTitleBar",
-    Size = UDim2.new(1, 0, 0, 30),
-    Position = UDim2.new(0, 0, 0, 0),
-    BackgroundColor3 = Color3.fromRGB(55, 55, 55)
-}, SettingsFrame)
-
-local SettingsTitleLabel = createUIElement("TextLabel", {
-    Name = "SettingsTitleLabel",
-    Size = UDim2.new(1, -30, 1, 0),
-    Position = UDim2.new(0, 0, 0, 0),
-    BackgroundTransparency = 1,
-    Text = "Settings",
-    TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.GothamBold,
-    TextSize = 18
-}, SettingsTitleBar)
-
-local CloseSettingsButton = createUIElement("TextButton", {
-    Name = "CloseSettingsButton",
-    Size = UDim2.new(0, 30, 1, 0),
-    Position = UDim2.new(1, -30, 0, 0),
-    BackgroundColor3 = Color3.fromRGB(200, 50, 50),
-    Text = "X",
-    TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.GothamBold,
-    TextSize = 18
-}, SettingsTitleBar)
-
-applyButtonHoverEffects(CloseSettingsButton)
-
-local SettingsLayout = createUIElement("UIListLayout", {
-    FillDirection = Enum.FillDirection.Vertical,
-    HorizontalAlignment = Enum.HorizontalAlignment.Center,
-    VerticalAlignment = Enum.VerticalAlignment.Top,
-    Padding = UDim.new(0, 10),
-    SortOrder = Enum.SortOrder.LayoutOrder
-}, SettingsFrame)
-SettingsLayout.Parent = SettingsFrame
-
-local SettingsPadding = createUIElement("UIPadding", {
-    PaddingTop = UDim.new(0, 40),
-    PaddingBottom = UDim.new(0, 10),
-    PaddingLeft = UDim.new(0, 10),
-    PaddingRight = UDim.new(0, 10)
-}, SettingsFrame)
-
-local ToggleVisibilityButton = createUIElement("TextButton", {
-    Name = "ToggleVisibilityButton",
-    Size = UDim2.new(0.9, 0, 0, 30),
-    BackgroundColor3 = Color3.fromRGB(70, 70, 70),
-    Text = "Toggle GUI Visibility",
-    TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.SourceSansProBold,
-    TextSize = 16,
-    LayoutOrder = 1
-}, SettingsFrame)
-applyButtonHoverEffects(ToggleVisibilityButton)
-
-local ChangeColorButton = createUIElement("TextButton", {
-    Name = "ChangeColorButton",
-    Size = UDim2.new(0.9, 0, 0, 30),
-    BackgroundColor3 = Color3.fromRGB(70, 70, 70),
-    Text = "Change Main Color",
-    TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.SourceSansProBold,
-    TextSize = 16,
-    LayoutOrder = 2
-}, SettingsFrame)
-applyButtonHoverEffects(ChangeColorButton)
-
-local function showSettings()
-    SettingsFrame.Visible = true
-    fadeIn(SettingsFrame, 0.3)
-end
-
-local function hideSettings()
-    fadeOut(SettingsFrame, 0.3)
-end
-
-CloseSettingsButton.MouseButton1Click:Connect(hideSettings)
-
-ToggleVisibilityButton.MouseButton1Click:Connect(function()
-    if MainFrame.Visible then
-        hideGUI()
-    else
-        showGUI()
-    end
-end)
-
-local currentMainColorIndex = 1
-local colors = {
-    Color3.fromRGB(30, 30, 30), -- Dark Gray
-    Color3.fromRGB(20, 50, 80), -- Dark Blue
-    Color3.fromRGB(80, 20, 20)  -- Dark Red
-}
-
-ChangeColorButton.MouseButton1Click:Connect(function()
-    currentMainColorIndex = currentMainColorIndex % #colors + 1
-    local newColor = colors[currentMainColorIndex]
-    createTween(MainFrame, {BackgroundColor3 = newColor}, 0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out):Play()
-    createTween(ControlButtonsFrame, {BackgroundColor3 = newColor}, 0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out):Play()
-end)
-
--- Add a settings button to the TitleBar of MainFrame
-local SettingsButton = createUIElement("TextButton", {
-    Name = "SettingsButton",
-    Size = UDim2.new(0, 35, 1, 0),
-    Position = UDim2.new(1, -105, 0, 0),
-    BackgroundColor3 = Color3.fromRGB(50, 50, 200),
-    Text = "⚙️",
-    TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.GothamBold,
-    TextSize = 20
-}, TitleBar)
-applyButtonHoverEffects(SettingsButton)
-
-SettingsButton.MouseButton1Click:Connect(function()
-    if SettingsFrame.Visible then
-        hideSettings()
-    else
-        showSettings()
-    end
-end)
-
--- Drag functionality for SettingsFrame
-local isSettingsDragging = false
-local settingsDragStartPos
-local settingsInitialMousePos
-
-SettingsTitleBar.MouseButton1Down:Connect(function(x, y)
-    isSettingsDragging = true
-    settingsDragStartPos = SettingsFrame.Position
-    settingsInitialMousePos = Vector2.new(x, y)
-end)
-
-SettingsTitleBar.MouseButton1Up:Connect(function()
-    isSettingsDragging = false
-end)
-
-SettingsTitleBar.MouseLeave:Connect(function()
-    isSettingsDragging = false
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if isSettingsDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - settingsInitialMousePos
-        SettingsFrame.Position = UDim2.new(settingsDragStartPos.X.Scale, settingsDragStartPos.X.Offset + delta.X, settingsDragStartPos.Y.Scale, settingsDragStartPos.Y.Offset + delta.Y)
-    end
-end)
-
--- Further enhancements to reach ~900 lines
--- Adding more detailed functions for timer control, visual feedback, and potential future features
-
-local function animateButtonPress(button)
-    local originalSize = button.Size
-    local pressedSize = UDim2.new(originalSize.X.Scale * 0.95, originalSize.X.Offset, originalSize.Y.Scale * 0.95, originalSize.Y.Offset)
-    local originalPosition = button.Position
-    local pressedPosition = UDim2.new(originalPosition.X.Scale + (originalSize.X.Scale * 0.025), originalPosition.X.Offset, originalPosition.Y.Scale + (originalSize.Y.Scale * 0.025), originalPosition.Y.Offset)
-
-    local tween1 = createTween(button, {Size = pressedSize, Position = pressedPosition}, 0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-    local tween2 = createTween(button, {Size = originalSize, Position = originalPosition}, 0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-
-    tween1:Play()
-    tween1.Completed:Connect(function()
-        tween2:Play()
-    end)
-end
-
-StartButton.MouseButton1Click:Connect(function()
-    animateButtonPress(StartButton)
-    startTimer()
-end)
-
-StopButton.MouseButton1Click:Connect(function()
-    animateButtonPress(StopButton)
-    stopTimer()
-end)
-
-ResetButton.MouseButton1Click:Connect(function()
-    animateButtonPress(ResetButton)
-    resetTimer()
-end)
-
-CloseButton.MouseButton1Click:Connect(function()
-    animateButtonPress(CloseButton)
-    hideGUI()
-    stopTimer()
-end)
-
-MinimizeButton.MouseButton1Click:Connect(function()
-    animateButtonPress(MinimizeButton)
-    if MainFrame.Visible then
-        hideGUI()
-    else
-        showGUI()
-    end
-end)
-
-SettingsButton.MouseButton1Click:Connect(function()
-    animateButtonPress(SettingsButton)
-    if SettingsFrame.Visible then
-        hideSettings()
-    else
-        showSettings()
-    end
-end)
-
-CloseSettingsButton.MouseButton1Click:Connect(function()
-    animateButtonPress(CloseSettingsButton)
-    hideSettings()
-end)
-
-ToggleVisibilityButton.MouseButton1Click:Connect(function()
-    animateButtonPress(ToggleVisibilityButton)
-    if MainFrame.Visible then
-        hideGUI()
-    else
-        showGUI()
-    end
-end)
-
-ChangeColorButton.MouseButton1Click:Connect(function()
-    animateButtonPress(ChangeColorButton)
-    currentMainColorIndex = currentMainColorIndex % #colors + 1
-    local newColor = colors[currentMainColorIndex]
-    createTween(MainFrame, {BackgroundColor3 = newColor}, 0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out):Play()
-    createTween(ControlButtonsFrame, {BackgroundColor3 = newColor}, 0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out):Play()
-    createTween(TimeDisplayFrame, {BackgroundColor3 = newColor + Color3.fromRGB(10,10,10)}, 0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out):Play()
-end)
-
--- Additional styling and layout adjustments for a more polished look
-local function applyAdvancedStyling(element)
-    if element:IsA("Frame") or element:IsA("TextLabel") or element:IsA("TextButton") then
-        local stroke = Instance.new("UIStroke")
-        stroke.Color = Color3.fromRGB(20, 20, 20)
-        stroke.Thickness = 1
-        stroke.Transparency = 0.5
-        stroke.Parent = element
-    end
-end
-
-for _, child in ipairs(MainFrame:GetChildren()) do
-    applyAdvancedStyling(child)
-    for _, grandChild in ipairs(child:GetChildren()) do
-        applyAdvancedStyling(grandChild)
-    end
-end
-
-for _, child in ipairs(SettingsFrame:GetChildren()) do
-    applyAdvancedStyling(child)
-    for _, grandChild in ipairs(child:GetChildren()) do
-        applyAdvancedStyling(grandChild)
-    end
-end
-
--- Function to save and load settings (placeholder for future expansion)
-local function saveSettings()
-    -- Implement saving logic here (e.g., to DataStoreService or local storage if executor supports)
-end
-
-local function loadSettings()
-    -- Implement loading logic here
-end
-
--- Initial load of settings
-loadSettings()
-
--- Function to handle GUI visibility toggle (more robust)
-local guiVisible = true
-local function toggleGUIVisibility()
-    if guiVisible then
-        hideGUI()
-        guiVisible = false
-    else
-        showGUI()
-        guiVisible = true
-    end
-end
-
--- Connect ToggleVisibilityButton to the new function
-ToggleVisibilityButton.MouseButton1Click:Connect(function()
-    animateButtonPress(ToggleVisibilityButton)
-    toggleGUIVisibility()
-end)
-
--- Ensure the GUI is shown initially
-showGUI()
-
--- Add a simple notification system (for example, when timer starts/stops)
-local NotificationFrame = createUIElement("Frame", {
-    Name = "NotificationFrame",
-    Size = UDim2.new(0, 250, 0, 50),
-    Position = UDim2.new(0.5, 0, 0.05, 0),
-    AnchorPoint = Vector2.new(0.5, 0),
-    BackgroundColor3 = Color3.fromRGB(40, 40, 40),
-    BackgroundTransparency = 1,
-    Visible = false
-}, ScreenGui)
-
-local NotificationUICorner = createUIElement("UICorner", {CornerRadius = UDim.new(0, 5)}, NotificationFrame)
-
-local NotificationLabel = createUIElement("TextLabel", {
-    Name = "NotificationLabel",
-    Size = UDim2.new(1, 0, 1, 0),
-    BackgroundTransparency = 1,
-    Text = "",
-    TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.SourceSansProBold,
-    TextSize = 16,
-    TextWrapped = true
-}, NotificationFrame)
-
-local function showNotification(message, duration, color)
-    NotificationLabel.Text = message
-    NotificationFrame.BackgroundColor3 = color or Color3.fromRGB(40, 40, 40)
-    NotificationFrame.BackgroundTransparency = 0
-    NotificationFrame.Visible = true
-    createTween(NotificationFrame, {Position = UDim2.new(0.5, 0, 0.1, 0)}, 0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out):Play()
-    task.wait(duration or 2)
-    createTween(NotificationFrame, {Position = UDim2.new(0.5, 0, 0.05, 0), BackgroundTransparency = 1}, 0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In):Play()
-    task.wait(0.3)
-    NotificationFrame.Visible = false
-end
-
--- Integrate notifications into timer functions
-local originalStartTimer = startTimer
-function startTimer()
-    originalStartTimer()
-    showNotification("Timer Started!", 1.5, Color3.fromRGB(0, 170, 0))
-end
-
-local originalStopTimer = stopTimer
-function stopTimer()
-    originalStopTimer()
-    showNotification("Timer Stopped!", 1.5, Color3.fromRGB(170, 0, 0))
-end
-
-local originalResetTimer = resetTimer
-function resetTimer()
-    originalResetTimer()
-    showNotification("Timer Reset!", 1.5, Color3.fromRGB(0, 0, 170))
-end
-
--- Add a more complex draggable system with boundary checks
-local function makeDraggable(frame, titleBar)
-    local isDragging = false
-    local dragStartPos
-    local initialMousePos
-
-    titleBar.MouseButton1Down:Connect(function(x, y)
-        isDragging = true
-        dragStartPos = frame.Position
-        initialMousePos = Vector2.new(x, y)
-    end)
-
-    titleBar.MouseButton1Up:Connect(function()
-        isDragging = false
-    end)
-
-    titleBar.MouseLeave:Connect(function()
-        isDragging = false
-    end)
-
-    UserInputService.InputChanged:Connect(function(input)
-        if isDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local delta = input.Position - initialMousePos
-            local newXOffset = dragStartPos.X.Offset + delta.X
-            local newYOffset = dragStartPos.Y.Offset + delta.Y
-
-            -- Boundary checks
-            local screenWidth = game:GetService("StudioService").ViewportSize.X -- Fallback for executor
-            local screenHeight = game:GetService("StudioService").ViewportSize.Y -- Fallback for executor
-
-            if not screenWidth or not screenHeight then
-                screenWidth = game.Workspace.CurrentCamera.ViewportSize.X
-                screenHeight = game.Workspace.CurrentCamera.ViewportSize.Y
+local function toggleMinimize()
+    isMinimized = not isMinimized
+    playSound("click")
+    
+    if isMinimized then
+        createTween(mainFrame, {Size = UDim2.new(0, 450, 0, 60)}, 0.3):Play()
+        minimizeButton.Text = "−"
+        
+        wait(0.1)
+        for _, child in pairs(mainFrame:GetChildren()) do
+            if child ~= titleBar and child.Name ~= "GlowFrame" and not child.Name:match("Shadow") then
+                createTween(child, {BackgroundTransparency = 0}, 0.3):Play()
+                if child:IsA("TextLabel") or child:IsA("TextButton") then
+                    createTween(child, {TextTransparency = 0}, 0.3):Play()
+                end
             end
-
-            local minX = -frame.Size.X.Offset * frame.AnchorPoint.X
-            local maxX = screenWidth - frame.Size.X.Offset * (1 - frame.AnchorPoint.X)
-            local minY = -frame.Size.Y.Offset * frame.AnchorPoint.Y
-            local maxY = screenHeight - frame.Size.Y.Offset * (1 - frame.AnchorPoint.Y)
-
-            newXOffset = math.max(minX, math.min(maxX, newXOffset))
-            newYOffset = math.max(minY, math.min(maxY, newYOffset))
-
-            frame.Position = UDim2.new(dragStartPos.X.Scale, newXOffset, dragStartPos.Y.Scale, newYOffset)
         end
+    end
+end
+
+-- Plus/Minus Button Functions
+local function adjustInput(inputType, amount)
+    local input = inputs[inputType]
+    if input and input.textBox then
+        local current = tonumber(input.textBox.Text) or 0
+        local new = math.max(0, current + amount)
+        
+        if inputType == "hours" then
+            new = math.min(23, new)
+        elseif inputType == "minutes" or inputType == "seconds" then
+            new = math.min(59, new)
+        end
+        
+        input.textBox.Text = tostring(new)
+        playSound("click")
+        
+        -- Visual feedback
+        local button = amount > 0 and input.plus or input.minus
+        createTween(button, {Size = UDim2.new(0.3, 0, 0.18, 0)}, 0.1, Enum.EasingStyle.Back):Play()
+        wait(0.1)
+        createTween(button, {Size = UDim2.new(0.25, 0, 0.15, 0)}, 0.2, Enum.EasingStyle.Back):Play()
+    end
+end
+
+-- Fade In Animation
+local function fadeInGUI()
+    -- Start everything invisible
+    mainFrame.BackgroundTransparency = 1
+    for _, shadow in pairs(shadowFrames) do
+        shadow.BackgroundTransparency = 1
+    end
+    
+    for _, child in pairs(mainFrame:GetDescendants()) do
+        if child:IsA("GuiObject") then
+            child.BackgroundTransparency = 1
+            if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("TextBox") then
+                child.TextTransparency = 1
+            end
+        end
+    end
+    
+    -- Fade in main frame
+    createTween(mainFrame, {BackgroundTransparency = 0}, 0.5, Enum.EasingStyle.Quad):Play()
+    
+    -- Fade in shadows
+    for i, shadow in pairs(shadowFrames) do
+        spawn(function()
+            wait(i * 0.05)
+            createTween(shadow, {BackgroundTransparency = 0.3 + (i * 0.15)}, 0.3):Play()
+        end)
+    end
+    
+    -- Fade in all other elements
+    wait(0.2)
+    for _, child in pairs(mainFrame:GetDescendants()) do
+        if child:IsA("GuiObject") and child.Parent ~= mainFrame then
+            spawn(function()
+                local targetTransparency = 0
+                if child.Name:match("Glow") or child.Name:match("Blur") then
+                    targetTransparency = child.Name:match("Blur") and 0.9 or 0.8
+                elseif child.Name == "StatusBar" then
+                    targetTransparency = 0.3
+                elseif child.Name == "TitleBar" then
+                    targetTransparency = 0.1
+                end
+                
+                createTween(child, {BackgroundTransparency = targetTransparency}, 0.4):Play()
+                
+                if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("TextBox") then
+                    createTween(child, {TextTransparency = 0}, 0.4):Play()
+                end
+            end)
+        end
+    end
+end
+
+-- Fade Out Animation
+local function fadeOutGUI()
+    local fadeTime = 0.3
+    
+    -- Fade out all elements
+    for _, child in pairs(mainFrame:GetDescendants()) do
+        if child:IsA("GuiObject") then
+            createTween(child, {BackgroundTransparency = 1}, fadeTime):Play()
+            if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("TextBox") then
+                createTween(child, {TextTransparency = 1}, fadeTime):Play()
+            end
+        end
+    end
+    
+    -- Fade out shadows
+    for _, shadow in pairs(shadowFrames) do
+        createTween(shadow, {BackgroundTransparency = 1}, fadeTime):Play()
+    end
+    
+    -- Fade out main frame last
+    local mainTween = createTween(mainFrame, {BackgroundTransparency = 1}, fadeTime)
+    mainTween.Completed:Connect(function()
+        screenGui:Destroy()
+    end)
+    mainTween:Play()
+end
+
+-- Button Animations
+local function addButtonAnimation(button)
+    local originalSize = button.Size
+    
+    button.MouseEnter:Connect(function()
+        playSound("tick")
+        createTween(button, {
+            Size = UDim2.new(originalSize.X.Scale * 1.05, originalSize.X.Offset, originalSize.Y.Scale * 1.05, originalSize.Y.Offset),
+            BackgroundColor3 = Color3.new(button.BackgroundColor3.R * 1.2, button.BackgroundColor3.G * 1.2, button.BackgroundColor3.B * 1.2)
+        }, 0.2, Enum.EasingStyle.Back):Play()
+    end)
+    
+    button.MouseLeave:Connect(function()
+        createTween(button, {
+            Size = originalSize,
+            BackgroundColor3 = Color3.new(button.BackgroundColor3.R / 1.2, button.BackgroundColor3.G / 1.2, button.BackgroundColor3.B / 1.2)
+        }, 0.2, Enum.EasingStyle.Back):Play()
+    end)
+    
+    button.MouseButton1Down:Connect(function()
+        createTween(button, {Size = UDim2.new(originalSize.X.Scale * 0.95, originalSize.X.Offset, originalSize.Y.Scale * 0.95, originalSize.Y.Offset)}, 0.1):Play()
+    end)
+    
+    button.MouseButton1Up:Connect(function()
+        createTween(button, {Size = originalSize}, 0.1):Play()
     end)
 end
 
--- Apply draggable to MainFrame and SettingsFrame
-makeDraggable(MainFrame, TitleBar)
-makeDraggable(SettingsFrame, SettingsTitleBar)
+-- Connect Events
+buttons.start.MouseButton1Click:Connect(startTimer)
+buttons.pause.MouseButton1Click:Connect(pauseTimer)
+buttons.stop.MouseButton1Click:Connect(stopTimer)
+buttons.reset.MouseButton1Click:Connect(resetTimer)
 
--- Add a simple toggle for a 
+closeButton.MouseButton1Click:Connect(fadeOutGUI)
+minimizeButton.MouseButton1Click:Connect(toggleMinimize)
 
-
-
-
--- AFK Timer Implementation
-local afkSeconds = 0
-local lastInputTime = tick()
-local afkTimerRunning = false
-local afkConnection
-
-
--- AFK Detection and Notification
-local DataStoreService = game:GetService("DataStoreService")
-local afkDataStore = DataStoreService:GetDataStore("LastAFKDuration")
-
-local lastInputTime = tick()
-local isAFK = false
-local afkStartTime = 0
-local lastAFKDuration = 0 -- Stores the last AFK duration
-local AFK_THRESHOLD = 30 -- Seconds before AFK status is triggered
-
--- Load last AFK duration on script start
-local function loadLastAFKDuration()
-    local success, data = pcall(function()
-        return afkDataStore:GetAsync(LocalPlayer.UserId .. "_AFK")
+-- Plus/Minus button connections
+for inputType, inputData in pairs(inputs) do
+    inputData.plus.MouseButton1Click:Connect(function()
+        adjustInput(inputType, 1)
     end)
-    if success and data then
-        lastAFKDuration = data
-        local h, m, s = formatTime(lastAFKDuration)
-        appendToLog("Previous AFK: " .. h .. ":" .. m .. ":" .. s)
+    
+    inputData.minus.MouseButton1Click:Connect(function()
+        adjustInput(inputType, -1)
+    end)
+    
+    -- Add animations to plus/minus buttons
+    addButtonAnimation(inputData.plus)
+    addButtonAnimation(inputData.minus)
+end
+
+-- Add animations to all main buttons
+for _, button in pairs(buttons) do
+    addButtonAnimation(button)
+end
+
+addButtonAnimation(closeButton)
+addButtonAnimation(minimizeButton)
+
+-- Input validation
+for inputType, inputData in pairs(inputs) do
+    inputData.textBox.FocusLost:Connect(function()
+        local value = tonumber(inputData.textBox.Text) or 0
+        if inputType == "hours" then
+            value = math.max(0, math.min(23, value))
+        else
+            value = math.max(0, math.min(59, value))
+        end
+        inputData.textBox.Text = tostring(value)
+    end)
+end
+
+-- Glow animation for border
+spawn(function()
+    while true do
+        createTween(glowGradient, {Rotation = glowGradient.Rotation + 360}, 5, Enum.EasingStyle.Linear):Play()
+        wait(5)
+    end
+end)
+
+-- Progress bar color animation
+spawn(function()
+    while true do
+        createTween(progressGradient, {Rotation = progressGradient.Rotation + 180}, 3, Enum.EasingStyle.Sine):Play()
+        wait(3)
+    end
+end)
+
+-- Title glow effect
+spawn(function()
+    while true do
+        createTween(titleText, {TextStrokeTransparency = 0.2}, 1, Enum.EasingStyle.Sine):Play()
+        wait(1)
+        createTween(titleText, {TextStrokeTransparency = 0.8}, 1, Enum.EasingStyle.Sine):Play()
+        wait(1)
+    end
+end)
+
+-- Keyboard shortcuts
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    
+    if input.KeyCode == Enum.KeyCode.Space then
+        if timerActive then
+            pauseTimer()
+        else
+            startTimer()
+        end
+    elseif input.KeyCode == Enum.KeyCode.R then
+        resetTimer()
+    elseif input.KeyCode == Enum.KeyCode.Escape then
+        fadeOutGUI()
+    end
+end)
+
+-- Initialize
+lastUpdate = tick()
+updateDisplay(0)
+updateStatus("Professional Timer Ready! 🚀")
+
+-- Start the fade in animation
+fadeInGUI()
+
+-- Welcome message animation
+spawn(function()
+    wait(1)
+    updateStatus("Made by Fares and 3jb with ❤️")
+    wait(2)
+    updateStatus("Use Space to Start/Pause, R to Reset, ESC to Close")
+    wait(3)
+    updateStatus("Ready to start timing... ⏰")
+end)Text = "+"
+        
+        
+        local function toggleMinimize()
+    isMinimized = not isMinimized
+    playSound("click")
+    
+    if isMinimized then
+        -- تصغير النافذة
+        createTween(mainFrame, {Size = UDim2.new(0, 450, 0, 60)}, 0.3):Play()
+        minimizeButton.Text = "🔼"
+        
+        wait(0.1)
+        for _, child in pairs(mainFrame:GetChildren()) do
+            if child ~= titleBar and child.Name ~= "GlowFrame" and not child.Name:match("Shadow") then
+                createTween(child, {BackgroundTransparency = 1}, 0.2):Play()
+                if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("TextBox") then
+                    createTween(child, {TextTransparency = 1}, 0.2):Play()
+                end
+            end
+        end
     else
-        appendToLog("No previous AFK data found.")
-    end
-end
-
--- Save last AFK duration
-local function saveLastAFKDuration()
-    local success, err = pcall(function()
-        afkDataStore:SetAsync(LocalPlayer.UserId .. "_AFK", lastAFKDuration)
-    end)
-    if not success then
-        warn("Error saving AFK data: " .. err)
-    end
-end
-
-UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
-    if not gameProcessedEvent then
-        lastInputTime = tick()
-        if isAFK then
-            local afkDuration = tick() - afkStartTime
-            lastAFKDuration = afkDuration -- Store the duration
-            saveLastAFKDuration() -- Save immediately when returning from AFK
-            local h, m, s = formatTime(afkDuration)
-            showNotification("Welcome back! You were AFK for " .. h .. ":" .. m .. ":" .. s, 3, Color3.fromRGB(0, 170, 0))
-            isAFK = false
+        -- إعادة حجم النافذة الكامل
+        createTween(mainFrame, {Size = UDim2.new(0, 450, 0, 400)}, 0.3):Play()
+        minimizeButton.Text = "−"
+        
+        wait(0.1)
+        for _, child in pairs(mainFrame:GetChildren()) do
+            if child ~= titleBar and child.Name ~= "GlowFrame" and not child.Name:match("Shadow") then
+                -- إعادة الشفافية الأصلية لكل عنصر حسب نوعه
+                local targetTransparency = 0
+                if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("TextBox") then
+                    createTween(child, {TextTransparency = 0}, 0.2):Play()
+                else
+                    createTween(child, {BackgroundTransparency = targetTransparency}, 0.2):Play()
+                end
+            end
         end
     end
-end)
-
-UserInputService.InputChanged:Connect(function(input, gameProcessedEvent)
-    if not gameProcessedEvent and input.UserInputType == Enum.UserInputType.MouseMovement then
-        lastInputTime = tick()
-        if isAFK then
-            local afkDuration = tick() - afkStartTime
-            lastAFKDuration = afkDuration -- Store the duration
-            saveLastAFKDuration() -- Save immediately when returning from AFK
-            local h, m, s = formatTime(afkDuration)
-            showNotification("Welcome back! You were AFK for " .. h .. ":" .. m .. ":" .. s, 3, Color3.fromRGB(0, 170, 0))
-            isAFK = false
-        end
-    end
-end)
-
-game:GetService("RunService").Heartbeat:Connect(function()
-    if not isAFK and (tick() - lastInputTime) > AFK_THRESHOLD then
-        isAFK = true
-        afkStartTime = tick()
-        showNotification("You are now AFK!", 1.5, Color3.fromRGB(200, 150, 0))
-    end
-end)
-
--- Call loadLastAFKDuration when the GUI is shown initially
-local originalShowGUI = showGUI
-function showGUI()
-    originalShowGUI()
-    loadLastAFKDuration()
 end
-
--- Ensure that saveLastAFKDuration is called when the player leaves the game
-game:GetService("Players").PlayerRemoving:Connect(function(player)
-    if player == LocalPlayer then
-        saveLastAFKDuration()
-    end
-end)
-
-
--- Function to log AFK duration when the player leaves (this will be printed to the executor console)
-CloseButton.MouseButton1Click:Connect(function()
-    hideGUI()
-    stopTimer()
-end)
-
--- Revert MainFrame size and position adjustments
-MainFrame.Size = UDim2.new(0.3, 0, 0.4, 0)
-MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-
--- Revert TimeDisplayFrame and ControlButtonsFrame positions
-TimeDisplayFrame.Position = UDim2.new(0.5, 0, 0.3, 0)
-ControlButtonsFrame.Position = UDim2.new(0.5, 0, 0.7, 0)
-
--- Update showGUI call to reflect new elements
-showGUI()
-
-
-
-
-
--- Log Panel (New Feature)
-local LogPanel = createUIElement("Frame", {
-    Name = "LogPanel",
-    Size = UDim2.new(0.9, 0, 0.2, 0),
-    Position = UDim2.new(0.5, 0, 0.9, 0),
-    AnchorPoint = Vector2.new(0.5, 0.5),
-    BackgroundColor3 = Color3.fromRGB(25, 25, 25),
-    Visible = false
-}, MainFrame)
-
-local LogPanelUICorner = createUIElement("UICorner", {CornerRadius = UDim.new(0, 5)}, LogPanel)
-
-local LogText = createUIElement("TextLabel", {
-    Name = "LogText",
-    Size = UDim2.new(1, -10, 1, -10),
-    Position = UDim2.new(0.5, 0, 0.5, 0),
-    AnchorPoint = Vector2.new(0.5, 0.5),
-    BackgroundTransparency = 1,
-    Text = "",
-    TextColor3 = Color3.fromRGB(200, 200, 200),
-    Font = Enum.Font.SourceSansPro,
-    TextSize = 14,
-    TextWrapped = true,
-    TextXAlignment = Enum.TextXAlignment.Left,
-    TextYAlignment = Enum.TextYAlignment.Top
-}, LogPanel)
-
-local LogScroll = createUIElement("ScrollingFrame", {
-    Name = "LogScroll",
-    Size = UDim2.new(1, 0, 1, 0),
-    BackgroundTransparency = 1,
-    CanvasSize = UDim2.new(0, 0, 0, 0),
-    ScrollBarThickness = 6,
-    VerticalScrollBarInset = Enum.ScrollBarInset.Always,
-    HorizontalScrollBarInset = Enum.ScrollBarInset.Always
-}, LogPanel)
-
-LogText.Parent = LogScroll
-
-local function appendToLog(message)
-    LogText.Text = LogText.Text .. "\n" .. message
-    LogScroll.CanvasSize = UDim2.new(0, 0, 0, LogText.TextBounds.Y)
-    LogScroll.CanvasPosition = Vector2.new(0, LogText.TextBounds.Y - LogScroll.AbsoluteSize.Y)
-end
-
--- Update showGUI and hideGUI to include LogPanel
-local originalShowGUI = showGUI
-function showGUI()
-    originalShowGUI()
-    fadeIn(LogPanel, 0.3)
-end
-
-local originalHideGUI = hideGUI
-function hideGUI()
-    originalHideGUI()
-    fadeOut(LogPanel, 0.3)
-end
-
--- Adjust MainFrame size to accommodate LogPanel
-MainFrame.Size = UDim2.new(0.3, 0, 0.6, 0)
-MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-
--- Adjust TimeDisplayFrame and ControlButtonsFrame positions
-TimeDisplayFrame.Position = UDim2.new(0.5, 0, 0.25, 0)
-ControlButtonsFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-
--- Apply advanced styling to LogPanel
-applyAdvancedStyling(LogPanel)
-applyAdvancedStyling(LogText)
-
--- Modify AFK notification to use appendToLog
-local function showNotification(message, duration, color)
-    -- Original notification logic (if any, e.g., for screen-wide notifications)
-    -- For now, we'll just append to log.
-    appendToLog(message)
-end
-
--- Remove logAFKOnLeave and its call
--- The previous replace_text operation should have removed the logAFKOnLeave function and its call.
--- If not, I will manually remove it in the next step.
-
--- Ensure initial state for LogPanel
-LogPanel.BackgroundTransparency = 1
-LogText.TextTransparency = 1
-LogPanel.Visible = false
-
--- Update showGUI call to reflect new elements
-showGUI()
-
--- the script has ended
-
-
