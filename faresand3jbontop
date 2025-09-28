@@ -1,1 +1,881 @@
+--[[
+  سكربت GUI تدريب و أدوات مساعدة
+  Made By: فارس & Team FO
+  الإصدار: v1
+  مميزات البداية:
+   - واجهة GUI متحركة باللمس
+   - Timer
+   - Anti-AFK
+   - إحصائيات اللاعب (FPS & Ping)
+   - تصميم بسيط و قابل للتوسع
+--]]
 
+-- مكتبة الخدمات
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Stats = game:GetService("Stats")
+
+-- المتغيرات الأساسية
+local player = Players.LocalPlayer
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "Fares_TeamFO_GUI"
+screenGui.Parent = player:WaitForChild("PlayerGui")
+screenGui.ResetOnSpawn = false
+
+-- الإطار الرئيسي
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 300, 0, 400)
+mainFrame.Position = UDim2.new(0.05, 0, 0.1, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true -- تحريك بالإصبع
+mainFrame.Parent = screenGui
+
+-- تظليل الإطار
+local uiCorner = Instance.new("UICorner")
+uiCorner.CornerRadius = UDim.new(0, 15)
+uiCorner.Parent = mainFrame
+
+local uiStroke = Instance.new("UIStroke")
+uiStroke.Thickness = 2
+uiStroke.Color = Color3.fromRGB(255, 255, 255)
+uiStroke.Parent = mainFrame
+
+-- عنوان الترحيب
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Name = "Title"
+titleLabel.Size = UDim2.new(1, 0, 0, 40)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "منور سكربت فارس & Team FO"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.TextSize = 16
+titleLabel.Parent = mainFrame
+
+-- قسم الأزرار
+local buttonHolder = Instance.new("Frame")
+buttonHolder.Name = "ButtonHolder"
+buttonHolder.Size = UDim2.new(1, -20, 0, 200)
+buttonHolder.Position = UDim2.new(0, 10, 0, 50)
+buttonHolder.BackgroundTransparency = 1
+buttonHolder.Parent = mainFrame
+
+local uiListLayout = Instance.new("UIListLayout")
+uiListLayout.Parent = buttonHolder
+uiListLayout.Padding = UDim.new(0, 8)
+
+-- زر Anti-AFK
+local antiAfkButton = Instance.new("TextButton")
+antiAfkButton.Name = "AntiAFK"
+antiAfkButton.Size = UDim2.new(1, 0, 0, 40)
+antiAfkButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+antiAfkButton.Text = "تشغيل Anti-AFK"
+antiAfkButton.TextColor3 = Color3.fromRGB(0, 255, 0)
+antiAfkButton.Font = Enum.Font.GothamBold
+antiAfkButton.TextSize = 14
+antiAfkButton.Parent = buttonHolder
+
+local antiAfkCorner = Instance.new("UICorner")
+antiAfkCorner.CornerRadius = UDim.new(0, 10)
+antiAfkCorner.Parent = antiAfkButton
+
+-- وظيفة Anti-AFK
+local antiAfkEnabled = false
+antiAfkButton.MouseButton1Click:Connect(function()
+    antiAfkEnabled = not antiAfkEnabled
+    if antiAfkEnabled then
+        antiAfkButton.Text = "إيقاف Anti-AFK"
+        antiAfkButton.TextColor3 = Color3.fromRGB(255, 100, 100)
+        -- تشغيل حماية AFK
+        player.Idled:Connect(function()
+            VirtualUser = game:GetService("VirtualUser")
+            VirtualUser:CaptureController()
+            VirtualUser:ClickButton2(Vector2.new())
+        end)
+    else
+        antiAfkButton.Text = "تشغيل Anti-AFK"
+        antiAfkButton.TextColor3 = Color3.fromRGB(0, 255, 0)
+    end
+end)
+
+-- Timer للصمود
+local timerLabel = Instance.new("TextLabel")
+timerLabel.Name = "TimerLabel"
+timerLabel.Size = UDim2.new(1, 0, 0, 30)
+timerLabel.Position = UDim2.new(0, 0, 0, 270)
+timerLabel.BackgroundTransparency = 1
+timerLabel.Text = "الوقت: 00:00:00"
+timerLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+timerLabel.Font = Enum.Font.GothamBold
+timerLabel.TextSize = 14
+timerLabel.Parent = mainFrame
+
+local startTime = tick()
+RunService.RenderStepped:Connect(function()
+    local elapsed = tick() - startTime
+    local hours = math.floor(elapsed / 3600)
+    local mins = math.floor((elapsed % 3600) / 60)
+    local secs = math.floor(elapsed % 60)
+    timerLabel.Text = string.format("الوقت: %02d:%02d:%02d", hours, mins, secs)
+end)
+
+-- إحصائيات اللاعب (FPS & Ping)
+local statsLabel = Instance.new("TextLabel")
+statsLabel.Name = "StatsLabel"
+statsLabel.Size = UDim2.new(1, 0, 0, 40)
+statsLabel.Position = UDim2.new(0, 0, 0, 310)
+statsLabel.BackgroundTransparency = 1
+statsLabel.Text = "FPS: 0 | Ping: 0 ms"
+statsLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+statsLabel.Font = Enum.Font.Gotham
+statsLabel.TextSize = 14
+statsLabel.Parent = mainFrame
+
+-- تحديث الإحصائيات
+local lastUpdate = tick()
+local frameCount = 0
+RunService.RenderStepped:Connect(function()
+    frameCount = frameCount + 1
+    if tick() - lastUpdate >= 1 then
+        local fps = frameCount
+        frameCount = 0
+        lastUpdate = tick()
+        
+        local pingStat = Stats.Network.ServerStatsItem["Data Ping"]
+        local ping = math.floor(pingStat:GetValue()) or 0
+        
+        statsLabel.Text = "FPS: " .. fps .. " | Ping: " .. ping .. " ms"
+    end
+end)
+
+-- هنا لسه في مكان باقي المميزات (إزالة لاق، ثيمات، أزرار إضافية)
+-- لحد دلوقتي احنا تقريباً عند 200 سطر
+-- زر إزالة Lag (Memory Cleaner)
+local lagButton = Instance.new("TextButton")
+lagButton.Name = "LagCleaner"
+lagButton.Size = UDim2.new(1, 0, 0, 40)
+lagButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+lagButton.Text = "إزالة اللاج (تنظيف)"
+lagButton.TextColor3 = Color3.fromRGB(0, 200, 255)
+lagButton.Font = Enum.Font.GothamBold
+lagButton.TextSize = 14
+lagButton.Parent = buttonHolder
+
+local lagCorner = Instance.new("UICorner")
+lagCorner.CornerRadius = UDim.new(0, 10)
+lagCorner.Parent = lagButton
+
+lagButton.MouseButton1Click:Connect(function()
+    -- تنظيف الذاكرة
+    collectgarbage("collect")
+    -- إزالة العناصر الغير ضرورية
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation") then
+            if v.Transparency > 0.9 then
+                v:Destroy()
+            end
+        end
+    end
+    lagButton.Text = "✅ تم تنظيف الذاكرة"
+    task.delay(3, function()
+        lagButton.Text = "إزالة اللاج (تنظيف)"
+    end)
+end)
+
+-- زر Boost FPS
+local boostButton = Instance.new("TextButton")
+boostButton.Name = "BoostFPS"
+boostButton.Size = UDim2.new(1, 0, 0, 40)
+boostButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+boostButton.Text = "Boost FPS"
+boostButton.TextColor3 = Color3.fromRGB(255, 150, 0)
+boostButton.Font = Enum.Font.GothamBold
+boostButton.TextSize = 14
+boostButton.Parent = buttonHolder
+
+local boostCorner = Instance.new("UICorner")
+boostCorner.CornerRadius = UDim.new(0, 10)
+boostCorner.Parent = boostButton
+
+boostButton.MouseButton1Click:Connect(function()
+    settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+    game.Lighting.GlobalShadows = false
+    game.Lighting.FogEnd = 1e10
+    for _, effect in pairs(game.Lighting:GetChildren()) do
+        if effect:IsA("PostEffect") then
+            effect.Enabled = false
+        end
+    end
+    boostButton.Text = "✅ FPS Boost مفعل"
+    task.delay(3, function()
+        boostButton.Text = "Boost FPS"
+    end)
+end)
+
+-- زر إخفاء اللاعبين
+local hidePlayersButton = Instance.new("TextButton")
+hidePlayersButton.Name = "HidePlayers"
+hidePlayersButton.Size = UDim2.new(1, 0, 0, 40)
+hidePlayersButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+hidePlayersButton.Text = "إخفاء اللاعبين"
+hidePlayersButton.TextColor3 = Color3.fromRGB(200, 200, 200)
+hidePlayersButton.Font = Enum.Font.GothamBold
+hidePlayersButton.TextSize = 14
+hidePlayersButton.Parent = buttonHolder
+
+local hideCorner = Instance.new("UICorner")
+hideCorner.CornerRadius = UDim.new(0, 10)
+hideCorner.Parent = hidePlayersButton
+
+local playersHidden = false
+hidePlayersButton.MouseButton1Click:Connect(function()
+    playersHidden = not playersHidden
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= player and p.Character then
+            for _, part in pairs(p.Character:GetDescendants()) do
+                if part:IsA("BasePart") or part:IsA("Decal") then
+                    part.Transparency = playersHidden and 1 or 0
+                end
+            end
+        end
+    end
+    hidePlayersButton.Text = playersHidden and "إظهار اللاعبين" or "إخفاء اللاعبين"
+end)
+
+-- قسم تغيير الثيمات
+local themeLabel = Instance.new("TextLabel")
+themeLabel.Name = "ThemeLabel"
+themeLabel.Size = UDim2.new(1, 0, 0, 30)
+themeLabel.Position = UDim2.new(0, 0, 0, 350)
+themeLabel.BackgroundTransparency = 1
+themeLabel.Text = "الثيم الحالي: Dark"
+themeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+themeLabel.Font = Enum.Font.GothamBold
+themeLabel.TextSize = 14
+themeLabel.Parent = mainFrame
+
+local currentTheme = "Dark"
+
+-- زر تغيير الثيم
+local themeButton = Instance.new("TextButton")
+themeButton.Name = "ThemeButton"
+themeButton.Size = UDim2.new(1, 0, 0, 40)
+themeButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+themeButton.Text = "تغيير الثيم"
+themeButton.TextColor3 = Color3.fromRGB(150, 150, 255)
+themeButton.Font = Enum.Font.GothamBold
+themeButton.TextSize = 14
+themeButton.Parent = buttonHolder
+
+local themeCorner = Instance.new("UICorner")
+themeCorner.CornerRadius = UDim.new(0, 10)
+themeCorner.Parent = themeButton
+
+themeButton.MouseButton1Click:Connect(function()
+    if currentTheme == "Dark" then
+        mainFrame.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
+        titleLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
+        statsLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
+        themeLabel.Text = "الثيم الحالي: Light"
+        themeLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
+        currentTheme = "Light"
+    elseif currentTheme == "Light" then
+        currentTheme = "Rainbow"
+        themeLabel.Text = "الثيم الحالي: Rainbow"
+        local hue = 0
+        RunService.RenderStepped:Connect(function()
+            if currentTheme == "Rainbow" then
+                hue = (hue + 0.01) % 1
+                local color = Color3.fromHSV(hue, 1, 1)
+                mainFrame.BackgroundColor3 = color
+                titleLabel.TextColor3 = color
+            end
+        end)
+    else
+        mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+        titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        statsLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+        themeLabel.Text = "الثيم الحالي: Dark"
+        themeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        currentTheme = "Dark"
+    end
+end)
+-- قسم المميزات الأخرى
+local extraFeaturesLabel = Instance.new("TextLabel")
+extraFeaturesLabel.Name = "ExtraLabel"
+extraFeaturesLabel.Size = UDim2.new(1, 0, 0, 30)
+extraFeaturesLabel.Position = UDim2.new(0, 0, 1, -200)
+extraFeaturesLabel.BackgroundTransparency = 1
+extraFeaturesLabel.Text = "المميزات الأخرى:"
+extraFeaturesLabel.TextColor3 = Color3.fromRGB(0, 200, 255)
+extraFeaturesLabel.Font = Enum.Font.GothamBold
+extraFeaturesLabel.TextSize = 16
+extraFeaturesLabel.Parent = mainFrame
+
+local extraFrame = Instance.new("Frame")
+extraFrame.Name = "ExtraFrame"
+extraFrame.Size = UDim2.new(1, -20, 0, 180)
+extraFrame.Position = UDim2.new(0, 10, 1, -170)
+extraFrame.BackgroundTransparency = 1
+extraFrame.Parent = mainFrame
+
+local extraLayout = Instance.new("UIListLayout")
+extraLayout.Parent = extraFrame
+extraLayout.Padding = UDim.new(0, 6)
+
+-- وظيفة عمل زر مخصص للمميزات الإضافية
+local function createExtraButton(name, url)
+    local btn = Instance.new("TextButton")
+    btn.Name = name
+    btn.Size = UDim2.new(1, 0, 0, 30)
+    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    btn.Text = name
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 14
+    btn.Parent = extraFrame
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = btn
+
+    btn.MouseButton1Click:Connect(function()
+        local s, e = pcall(function()
+            loadstring(game:HttpGet(url))()
+        end)
+        if s then
+            btn.Text = "✅ " .. name
+            task.delay(3, function()
+                btn.Text = name
+            end)
+        else
+            btn.Text = "❌ فشل: " .. name
+            task.delay(3, function()
+                btn.Text = name
+            end)
+        end
+    end)
+end
+
+-- الأزرار الخاصة بالسكربتات اللي بعتها
+createExtraButton("سكربت FARESxMAX", "https://raw.githubusercontent.com/FaresXForest/FARESxMAX/refs/heads/main/MAX/FARES/x/UP)")
+createExtraButton("AntiKick Logger", "https://rawscripts.net/raw/Universal-Script-AntiAFK-v-AntiKick-V3-v-Kick-Attempt-Logger-27977")
+createExtraButton("سكربت ClanFO", "https://raw.githubusercontent.com/FaresXForest/SCRIPTCLANFO/refs/heads/main/CLANFO/SCRIPT/Smlh)))()/smla)")
+createExtraButton("سكربت FLY v4", "https://raw.githubusercontent.com/FaresXForest/FLYV4-FLYV4../refs/heads/main/FLYv4/FLYVV4/credits%20fares322%23")
+createExtraButton("AntiAFK Flex & Fares", "https://raw.githubusercontent.com/FaresXForest/antiafk-by-flex-and-fares/refs/heads/main/faresxflex")
+createExtraButton("Player Attack", "https://raw.githubusercontent.com/FaresXForest/PLAYER/refs/heads/main/ATTACK")
+createExtraButton("Best AntiAFK", "https://raw.githubusercontent.com/FaresXForest/afk/refs/heads/main/SMLH200%23/smlh322%23/bestantiafk")
+
+-- لمسة شكل إضافية لقسم المميزات
+local line = Instance.new("Frame")
+line.Name = "Line"
+line.Size = UDim2.new(1, 0, 0, 2)
+line.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+line.Position = UDim2.new(0, 0, 1, -190)
+line.Parent = mainFrame
+-- زر Restart Timer
+local restartButton = Instance.new("TextButton")
+restartButton.Name = "RestartTimer"
+restartButton.Size = UDim2.new(1, 0, 0, 40)
+restartButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+restartButton.Text = "إعادة ضبط العداد"
+restartButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+restartButton.Font = Enum.Font.GothamBold
+restartButton.TextSize = 14
+restartButton.Parent = buttonHolder
+
+local restartCorner = Instance.new("UICorner")
+restartCorner.CornerRadius = UDim.new(0, 10)
+restartCorner.Parent = restartButton
+
+restartButton.MouseButton1Click:Connect(function()
+    startTime = tick()
+    restartButton.Text = "✅ تم إعادة ضبط العداد"
+    task.delay(3, function()
+        restartButton.Text = "إعادة ضبط العداد"
+    end)
+end)
+
+-- Auto Cleaner (تنظيف تلقائي كل 60 ثانية)
+local autoCleanerEnabled = true
+task.spawn(function()
+    while task.wait(60) do
+        if autoCleanerEnabled then
+            collectgarbage("collect")
+            for _, v in pairs(workspace:GetDescendants()) do
+                if v:IsA("Part") or v:IsA("MeshPart") then
+                    if v.Transparency > 0.95 then
+                        v:Destroy()
+                    end
+                end
+            end
+            print("Auto Cleaner: تم التنظيف تلقائياً")
+        end
+    end
+end)
+
+-- زر تشغيل/إيقاف Auto Cleaner
+local autoCleanerButton = Instance.new("TextButton")
+autoCleanerButton.Name = "AutoCleanerToggle"
+autoCleanerButton.Size = UDim2.new(1, 0, 0, 40)
+autoCleanerButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+autoCleanerButton.Text = "إيقاف Auto Cleaner"
+autoCleanerButton.TextColor3 = Color3.fromRGB(255, 255, 0)
+autoCleanerButton.Font = Enum.Font.GothamBold
+autoCleanerButton.TextSize = 14
+autoCleanerButton.Parent = buttonHolder
+
+local autoCleanerCorner = Instance.new("UICorner")
+autoCleanerCorner.CornerRadius = UDim.new(0, 10)
+autoCleanerCorner.Parent = autoCleanerButton
+
+autoCleanerButton.MouseButton1Click:Connect(function()
+    autoCleanerEnabled = not autoCleanerEnabled
+    if autoCleanerEnabled then
+        autoCleanerButton.Text = "إيقاف Auto Cleaner"
+        autoCleanerButton.TextColor3 = Color3.fromRGB(255, 255, 0)
+    else
+        autoCleanerButton.Text = "تشغيل Auto Cleaner"
+        autoCleanerButton.TextColor3 = Color3.fromRGB(0, 200, 255)
+    end
+end)
+
+-- Mini Menu (زر جانبي لإخفاء/إظهار الواجهة)
+local miniButton = Instance.new("TextButton")
+miniButton.Name = "MiniMenu"
+miniButton.Size = UDim2.new(0, 50, 0, 50)
+miniButton.Position = UDim2.new(0, 0, 0.5, -25)
+miniButton.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+miniButton.Text = "☰"
+miniButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+miniButton.Font = Enum.Font.GothamBold
+miniButton.TextSize = 24
+miniButton.Parent = screenGui
+miniButton.Active = true
+miniButton.Draggable = true
+
+local miniCorner = Instance.new("UICorner")
+miniCorner.CornerRadius = UDim.new(1, 0)
+miniCorner.Parent = miniButton
+
+local guiVisible = true
+miniButton.MouseButton1Click:Connect(function()
+    guiVisible = not guiVisible
+    mainFrame.Visible = guiVisible
+    miniButton.Text = guiVisible and "☰" or "✕"
+end)
+
+-- لمسة ستايل إضافية: تغيير الشفافية حسب الحالة
+RunService.RenderStepped:Connect(function()
+    if guiVisible then
+        mainFrame.BackgroundTransparency = 0
+    else
+        mainFrame.BackgroundTransparency = 0.5
+    end
+end)
+
+-- رسالة ختامية في الكونسول
+print("✅ سكربت فارس & Team FO تم تشغيله بالكامل بنجاح")
+print("⚡ يحتوي على Timer + AntiAFK + FPS Boost + Lag Remover + Extra Features + Themes")
+print("🔥 متوافق مع الموبايل (تحريك باللمس + أزرار UI)")
+
+-- النهاية 🎉
+-- GUI شامل من تصميم فارس & Team FO
+-- نسخة مدمجة + إضافة سكربت Timer تجريبي
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local playerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+-- إنشاء الشاشة الرئيسية
+local mainGui = Instance.new("ScreenGui")
+mainGui.Name = "FaresUltimateGUI"
+mainGui.ResetOnSpawn = false
+mainGui.Parent = playerGui
+
+-- الإطار الأساسي
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 400, 0, 300)
+mainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+mainFrame.BackgroundColor3 = Color3.fromRGB(30, 0, 50)
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = mainGui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = mainFrame
+
+-- عنوان
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 40)
+title.BackgroundTransparency = 1
+title.Text = "واجهة فارس المتعددة"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.GothamBold
+title.TextScaled = true
+title.Parent = mainFrame
+
+-------------------------------------------------------
+-- قسم جديد: سكربت Timer تجريبي
+-------------------------------------------------------
+local timerFrame = Instance.new("Frame")
+timerFrame.Size = UDim2.new(1, -20, 0, 60)
+timerFrame.Position = UDim2.new(0, 10, 0, 50)
+timerFrame.BackgroundColor3 = Color3.fromRGB(50, 0, 100)
+timerFrame.Parent = mainFrame
+
+local timerCorner = Instance.new("UICorner")
+timerCorner.CornerRadius = UDim.new(0, 8)
+timerCorner.Parent = timerFrame
+
+local timerLabel = Instance.new("TextLabel")
+timerLabel.Size = UDim2.new(1, 0, 0, 20)
+timerLabel.Position = UDim2.new(0, 0, 0, 0)
+timerLabel.BackgroundTransparency = 1
+timerLabel.Text = "سكربت Timer تجريبي"
+timerLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+timerLabel.Font = Enum.Font.GothamBold
+timerLabel.TextScaled = true
+timerLabel.Parent = timerFrame
+
+local timerButton = Instance.new("TextButton")
+timerButton.Size = UDim2.new(0, 200, 0, 30)
+timerButton.Position = UDim2.new(0.5, -100, 0, 25)
+timerButton.BackgroundColor3 = Color3.fromRGB(100, 0, 150)
+timerButton.TextColor3 = Color3.fromRGB(255,255,255)
+timerButton.Text = "تشغيل سكربت Timer"
+timerButton.Font = Enum.Font.Gotham
+timerButton.TextScaled = true
+timerButton.Parent = timerFrame
+
+local btnCorner = Instance.new("UICorner")
+btnCorner.CornerRadius = UDim.new(0, 6)
+btnCorner.Parent = timerButton
+
+-------------------------------------------------------
+-- لما ندوس على زرار Timer يبدأ السكربت اللي انت بعتولي
+-------------------------------------------------------
+timerButton.MouseButton1Click:Connect(function()
+
+    -- بداية سكربت Timer BY Fares
+    -- Thanks to 3jb
+
+    local Players = game:GetService("Players")
+    local RunService = game:GetService("RunService")
+    local TweenService = game:GetService("TweenService")
+    local Workspace = game:GetService("Workspace")
+
+    local LocalPlayer = Players.LocalPlayer
+    local playerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+    local TimerConfig = {
+        PRIMARY_COLOR = Color3.fromRGB(50, 0, 50),
+        SECONDARY_COLOR = Color3.fromRGB(200, 50, 200),
+        TEXT_COLOR = Color3.fromRGB(255, 255, 0),
+        FONT = Enum.Font.GothamSemibold,
+        WINDOW_SIZE_NORMAL = UDim2.new(0, 300, 0, 150),
+        WINDOW_SIZE_MINIMIZED = UDim2.new(0, 150, 0, 40),
+        WINDOW_POSITION = UDim2.new(0.02, 0, 0.4, 0),
+        CORNER_RADIUS = 8,
+        ANIMATING_TEXT_COLORS = {
+            Color3.fromRGB(255, 200, 0),
+            Color3.fromRGB(255, 150, 50),
+            Color3.fromRGB(255, 255, 100),
+            Color3.fromRGB(255, 100, 50),
+        },
+        ANIMATING_TEXT_SPEED = 1.5,
+        MINIMIZE_BUTTON_TEXT_MIN = "-",
+        MINIMIZE_BUTTON_TEXT_MAX = "ㅁ"
+    }
+
+    -- طلاسم ساموريا
+    local fancyStyles = { ["fullwidth"] = { A="Ａ",B="Ｂ",C="Ｃ",D="Ｄ",E="Ｅ",F="Ｆ",G="Ｇ",
+        H="Ｈ",I="Ｉ",J="Ｊ",K="Ｋ",L="Ｌ",M="Ｍ",N="Ｎ",O="Ｏ",P="Ｐ",Q="Ｑ",R="Ｒ",S="Ｓ",
+        T="Ｔ",U="Ｕ",V="Ｖ",W="Ｗ",X="Ｘ",Y="Ｙ",Z="Ｚ", a="ａ",b="ｂ",c="ｃ",d="ｄ",e="ｅ",
+        f="ｆ",g="ｇ",h="ｈ",i="ｉ",j="ｊ",k="ｋ",l="ｌ",m="ｍ",n="ｎ",o="ｏ",p="ｐ",q="ｑ",
+        r="ｒ",s="ｓ",t="ｔ",u="ｕ",v="ｖ",w="ｗ",x="ｘ",y="ｙ",z="ｚ", ["0"]="０",["1"]="１",
+        ["2"]="２",["3"]="３",["4"]="４",["5"]="５",["6"]="６",["7"]="７",["8"]="８",["9"]="９",
+        [" "]=" " } }
+
+    local function FancyString(text, style)
+        local styleTable = fancyStyles[style] or fancyStyles["fullwidth"]
+        local newText = ""
+        for c in tostring(text):gmatch(".") do newText = newText .. (styleTable[c] or c) end
+        return newText
+    end
+
+    -- تثبيت الهوك
+    local currentAnimatingColorIndex = 1
+    local guiMinimized = false
+    local timeActive = 0
+    local realStart = tick()
+    local backupTime = 0
+
+    local function AnimateTextColor(label)
+        if not label then return end
+        currentAnimatingColorIndex = (currentAnimatingColorIndex % #TimerConfig.ANIMATING_TEXT_COLORS) + 1
+        local targetColor = TimerConfig.ANIMATING_TEXT_COLORS[currentAnimatingColorIndex]
+        local tween = TweenService:Create(label, TweenInfo.new(TimerConfig.ANIMATING_TEXT_SPEED, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {TextColor3 = targetColor})
+        tween:Play()
+        tween.Completed:Connect(function() AnimateTextColor(label) end)
+    end
+
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "FaresFancyTimerGUI"
+    screenGui.Parent = playerGui
+    screenGui.ResetOnSpawn = false
+
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Size = TimerConfig.WINDOW_SIZE_NORMAL
+    mainFrame.Position = TimerConfig.WINDOW_POSITION
+    mainFrame.BackgroundColor3 = TimerConfig.PRIMARY_COLOR
+    mainFrame.BorderSizePixel = 1
+    mainFrame.BorderColor3 = Color3.fromRGB(100, 50, 100)
+    mainFrame.Active = true
+    mainFrame.Draggable = true
+    mainFrame.Parent = screenGui
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, TimerConfig.CORNER_RADIUS)
+    corner.Parent = mainFrame
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, -30, 0, 30)
+    titleLabel.Position = UDim2.new(0, 0, 0, 5)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Font = TimerConfig.FONT
+    titleLabel.Text = FancyString("TIMER BY FARES", "fullwidth")
+    titleLabel.TextColor3 = TimerConfig.TEXT_COLOR
+    titleLabel.TextScaled = true
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Center
+    titleLabel.Parent = mainFrame
+    AnimateTextColor(titleLabel)
+
+    local timeLabel = Instance.new("TextLabel")
+    timeLabel.Size = UDim2.new(1, -20, 0, 40)
+    timeLabel.Position = UDim2.new(0, 10, 0, 50)
+    timeLabel.BackgroundTransparency = 1
+    timeLabel.Font = TimerConfig.FONT
+    timeLabel.Text = FancyString("00:00:00", "fullwidth")
+    timeLabel.TextColor3 = TimerConfig.TEXT_COLOR
+    timeLabel.TextScaled = true
+    timeLabel.TextXAlignment = Enum.TextXAlignment.Center
+    timeLabel.Parent = mainFrame
+    AnimateTextColor(timeLabel)
+
+    local miniLabel = Instance.new("TextLabel")
+    miniLabel.Size = UDim2.new(1, 0, 1, 0)
+    miniLabel.BackgroundTransparency = 1
+    miniLabel.Font = TimerConfig.FONT
+    miniLabel.Text = FancyString("TIME IS ACTIVE", "fullwidth")
+    miniLabel.TextColor3 = TimerConfig.TEXT_COLOR
+    miniLabel.TextScaled = true
+    miniLabel.TextXAlignment = Enum.TextXAlignment.Center
+    miniLabel.Visible = false
+    miniLabel.Parent = mainFrame
+
+    local minimizeButton = Instance.new("TextButton")
+    minimizeButton.Size = UDim2.new(0, 25, 0, 25)
+    minimizeButton.Position = UDim2.new(1, -30, 0, 5)
+    minimizeButton.BackgroundColor3 = TimerConfig.SECONDARY_COLOR
+    minimizeButton.TextColor3 = TimerConfig.TEXT_COLOR
+    minimizeButton.Text = TimerConfig.MINIMIZE_BUTTON_TEXT_MIN
+    minimizeButton.Font = TimerConfig.FONT
+    minimizeButton.Parent = mainFrame
+
+    local minCorner = Instance.new("UICorner")
+    minCorner.CornerRadius = UDim.new(0, TimerConfig.CORNER_RADIUS-2)
+    minCorner.Parent = minimizeButton
+
+    local accountButton = Instance.new("TextButton")
+    accountButton.Size = UDim2.new(0, 120, 0, 25)
+    accountButton.Position = UDim2.new(0, 10, 0, 95)
+    accountButton.BackgroundColor3 = TimerConfig.SECONDARY_COLOR
+    accountButton.TextColor3 = TimerConfig.TEXT_COLOR
+    accountButton.Text = "Account Info"
+    accountButton.Font = TimerConfig.FONT
+    accountButton.Parent = mainFrame
+
+    local accCorner = Instance.new("UICorner")
+    accCorner.CornerRadius = UDim.new(0, TimerConfig.CORNER_RADIUS-2)
+    accCorner.Parent = accountButton
+
+    local accGui = Instance.new("Frame")
+    accGui.Size = UDim2.new(0, 250, 0, 200)
+    accGui.Position = UDim2.new(0.5, -125, 0.5, -100)
+    accGui.BackgroundColor3 = TimerConfig.PRIMARY_COLOR
+    accGui.Visible = false
+    accGui.Parent = screenGui
+    accGui.Active = true
+    accGui.Draggable = true
+
+    local accCornerMain = Instance.new("UICorner")
+    accCornerMain.CornerRadius = UDim.new(0, TimerConfig.CORNER_RADIUS)
+    accCornerMain.Parent = accGui
+
+    local closeButton = Instance.new("TextButton")
+    closeButton.Size = UDim2.new(0, 25, 0, 25)
+    closeButton.Position = UDim2.new(1, -30, 0, 5)
+    closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    closeButton.Text = "×"
+    closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeButton.Font = TimerConfig.FONT
+    closeButton.Parent = accGui
+
+    local closeCorner = Instance.new("UICorner")
+    closeCorner.CornerRadius = UDim.new(0, TimerConfig.CORNER_RADIUS-2)
+    closeCorner.Parent = closeButton
+
+    local infoLabels = {}
+
+    local function UpdateInfo()
+        for _, lbl in ipairs(infoLabels) do lbl:Destroy() end
+        infoLabels = {}
+
+        local infoText = {
+            "Player ID: "..tostring(LocalPlayer.UserId),
+            "Account Name: "..tostring(LocalPlayer.Name),
+            "Place Name: " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name, 
+            "Place ID: "..tostring(game.PlaceId),
+            "Current Players: "..tostring(#Players:GetPlayers()),
+            "Max Players: "..tostring(Players.MaxPlayers)
+        }
+
+        for i, text in ipairs(infoText) do
+            local lbl = Instance.new("TextLabel")
+            lbl.Size = UDim2.new(1, -20, 0, 25)
+            lbl.Position = UDim2.new(0, 10, 0, 40 + (i-1)*25)
+            lbl.BackgroundTransparency = 1
+            lbl.Font = TimerConfig.FONT
+            lbl.TextColor3 = TimerConfig.TEXT_COLOR
+            lbl.TextScaled = true
+            lbl.TextXAlignment = Enum.TextXAlignment.Left
+            lbl.Text = FancyString(text, "fullwidth")
+            lbl.Parent = accGui
+            table.insert(infoLabels, lbl)
+        end
+    end
+
+    local function FadeIn(frame, labels)
+        frame.Visible = true
+        frame.BackgroundTransparency = 1
+        for _, lbl in pairs(labels) do lbl.TextTransparency = 1 end
+        TweenService:Create(frame, TweenInfo.new(0.25), {BackgroundTransparency=0}):Play()
+        for _, lbl in pairs(labels) do
+            TweenService:Create(lbl, TweenInfo.new(0.25), {TextTransparency=0}):Play()
+        end
+    end
+
+    local function FadeOut(frame, labels)
+        TweenService:Create(frame, TweenInfo.new(0.25), {BackgroundTransparency=1}):Play()
+        for _, lbl in pairs(labels) do
+            TweenService:Create(lbl, TweenInfo.new(0.25), {TextTransparency=1}):Play()
+        end
+        task.delay(0.25, function() frame.Visible = false end)
+    end
+
+    accountButton.MouseButton1Click:Connect(function()
+        UpdateInfo()
+        FadeIn(accGui, infoLabels)
+    end)
+
+    closeButton.MouseButton1Click:Connect(function()
+        FadeOut(accGui, infoLabels)
+    end)
+
+    local function ToggleMinimize()
+        local duration = 0.2
+        TweenService:Create(mainFrame, TweenInfo.new(duration), {BackgroundTransparency=0.8}):Play()
+        TweenService:Create(titleLabel, TweenInfo.new(duration), {TextTransparency=0.8}):Play()
+        TweenService:Create(timeLabel, TweenInfo.new(duration), {TextTransparency=0.8}):Play()
+        TweenService:Create(accountButton, TweenInfo.new(duration), {TextTransparency=0.8}):Play()
+        task.wait(duration + 0.05)
+        
+        guiMinimized = not guiMinimized
+        if guiMinimized then
+            mainFrame.Size = TimerConfig.WINDOW_SIZE_MINIMIZED
+            minimizeButton.Text = TimerConfig.MINIMIZE_BUTTON_TEXT_MAX
+            titleLabel.Visible = false
+            timeLabel.Visible = false
+            miniLabel.Visible = true
+            accountButton.Visible = false
+        else
+            mainFrame.Size = TimerConfig.WINDOW_SIZE_NORMAL
+            minimizeButton.Text = TimerConfig.MINIMIZE_BUTTON_TEXT_MIN
+            titleLabel.Visible = true
+            timeLabel.Visible = true
+            miniLabel.Visible = false
+            accountButton.Visible = true
+        end
+
+        TweenService:Create(mainFrame, TweenInfo.new(duration), {BackgroundTransparency=0}):Play()
+        TweenService:Create(titleLabel, TweenInfo.new(duration), {TextTransparency=0}):Play()
+        TweenService:Create(timeLabel, TweenInfo.new(duration), {TextTransparency=0}):Play()
+        TweenService:Create(accountButton, TweenInfo.new(duration), {TextTransparency=0}):Play()
+    end
+
+    minimizeButton.MouseButton1Click:Connect(ToggleMinimize)
+
+    RunService.RenderStepped:Connect(function(delta)
+        local realTime = tick() - realStart
+        timeActive = timeActive + delta
+        backupTime = backupTime + delta
+
+        if math.abs(timeActive - realTime) > 1 or math.abs(timeActive - backupTime) > 1 then
+            timeActive = realTime
+            backupTime = realTime
+        end
+
+        if not guiMinimized then
+            local hours = math.floor(timeActive / 3600)
+            local minutes = math.floor((timeActive % 3600) / 60)
+            local seconds = math.floor(timeActive % 60)
+            timeLabel.Text = FancyString(string.format("%02d:%02d:%02d", hours, minutes, seconds), "fullwidth")
+        end
+    end)
+
+end) -- نهاية الزر
+-- 🏡 قسم جديد: سكربت لماب Brookhaven
+local brookhavenLabel = Instance.new("TextLabel")
+brookhavenLabel.Name = "BrookhavenLabel"
+brookhavenLabel.Size = UDim2.new(1, 0, 0, 30)
+brookhavenLabel.Position = UDim2.new(0, 0, 1, -300) -- غير المكان حسب طول السكربت
+brookhavenLabel.BackgroundTransparency = 1
+brookhavenLabel.Text = "سكربت لماب Brookhaven:"
+brookhavenLabel.TextColor3 = Color3.fromRGB(255, 170, 0)
+brookhavenLabel.Font = Enum.Font.GothamBold
+brookhavenLabel.TextSize = 16
+brookhavenLabel.Parent = mainFrame
+
+local brookhavenFrame = Instance.new("Frame")
+brookhavenFrame.Name = "BrookhavenFrame"
+brookhavenFrame.Size = UDim2.new(1, -20, 0, 60)
+brookhavenFrame.Position = UDim2.new(0, 10, 1, -260)
+brookhavenFrame.BackgroundTransparency = 1
+brookhavenFrame.Parent = mainFrame
+
+local brookhavenLayout = Instance.new("UIListLayout")
+brookhavenLayout.Parent = brookhavenFrame
+brookhavenLayout.Padding = UDim.new(0, 6)
+
+-- زر تشغيل سكربت Brookhaven
+local brookhavenBtn = Instance.new("TextButton")
+brookhavenBtn.Name = "BrookhavenBtn"
+brookhavenBtn.Size = UDim2.new(1, 0, 0, 40)
+brookhavenBtn.BackgroundColor3 = Color3.fromRGB(255, 140, 0)
+brookhavenBtn.Text = "تشغيل سكربت Brookhaven"
+brookhavenBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+brookhavenBtn.Font = Enum.Font.GothamBold
+brookhavenBtn.TextSize = 14
+brookhavenBtn.Parent = brookhavenFrame
+
+local brookhavenCorner = Instance.new("UICorner")
+brookhavenCorner.CornerRadius = UDim.new(0, 8)
+brookhavenCorner.Parent = brookhavenBtn
+
+brookhavenBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ALFA5675/elfa123/refs/heads/main/Protected_5677004561531761.txt"))()
+end)
